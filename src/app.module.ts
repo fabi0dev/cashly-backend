@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './modules/user/user.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { ExpenseModule } from './modules/expense/expense.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
       signOptions: { expiresIn: process.env.JWT_EXPIRATION_TIME },
     }),
     UserModule,
-    AuthModule,
+    ExpenseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

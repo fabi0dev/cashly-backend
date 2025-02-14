@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  expenses     Expenses[]
+  incomes      Incomes[]
+  budgets      Budgets[]
+  goals        Goals[]
+  debts        Debts[]
+  transactions Transactions[]
+  payments     Payments[]
+  investments  Investments[]
+  accounts     Accounts[]
+
+  @@map("users")
+}
+
+model Expenses {
+  id          String    @id @default(cuid())
+  amount      Float
+  category    String
+  date        DateTime  @default(now())
+  description String?
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("expense")
+}
+
+model Incomes {
+  id          String    @id @default(cuid())
+  amount      Float
+  source      String
+  date        DateTime  @default(now())
+  description String?
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("incomes")
+}
+
+model Budgets {
+  id        String    @id @default(cuid())
+  category  String
+  limit     Float
+  startDate DateTime  @default(now())
+  endDate   DateTime
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("budgets")
+}
+
+model Goals {
+  id        String    @id @default(cuid())
+  name      String
+  target    Float
+  current   Float     @default(0)
+  deadline  DateTime
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("goals")
+}
+
+model Debts {
+  id          String    @id @default(cuid())
+  amount      Float
+  interest    Float
+  dueDate     DateTime
+  description String?
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user    Users      @relation(fields: [userId], references: [id])
+  Payment Payments[]
+
+  @@map("debts")
+}
+
+model Transactions {
+  id          String    @id @default(cuid())
+  amount      Float
+  type        String
+  date        DateTime  @default(now())
+  description String?
+  userId      String
+  accountId   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user    Users    @relation(fields: [userId], references: [id])
+  account Accounts @relation(fields: [accountId], references: [id])
+
+  @@map("transactions")
+}
+
+model Payments {
+  id          String    @id @default(cuid())
+  amount      Float
+  date        DateTime  @default(now())
+  description String?
+  debtId      String
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+  debt Debts @relation(fields: [debtId], references: [id])
+
+  @@map("payments")
+}
+
+model Investments {
+  id          String    @id @default(cuid())
+  amount      Float
+  type        String
+  date        DateTime  @default(now())
+  description String?
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("investments")
+}
+
+model Accounts {
+  id        String    @id @default(cuid())
+  name      String
+  type      String
+  balance   Float     @default(0)
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user        Users          @relation(fields: [userId], references: [id])
+  Transaction Transactions[]
+
+  @@map("accounts")
+}
+
+model TransactionCategory {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("transactions_category")
+}

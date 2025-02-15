@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './modules/user/user.module';
 import { ExpenseModule } from './modules/expense/expense.module';
+import { FinanceOverviewModule } from './modules/finance-overview/finance-overview.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ExpenseModule } from './modules/expense/expense.module';
     }),
     UserModule,
     ExpenseModule,
+    FinanceOverviewModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

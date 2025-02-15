@@ -13,69 +13,62 @@ async function main() {
     },
   });
 
-  // Criando uma conta
-  await prisma.accounts.create({
-    data: {
-      name: 'Main Account',
-      type: 'Checking',
-      balance: 1000,
-      userId: user.id,
-    },
-  });
-
-  // Criando uma despesa
+  // Criando despesas
   await prisma.expenses.create({
     data: {
-      amount: 50,
+      amount: 50.0,
       category: 'Food',
-      description: 'Lunch at restaurant',
+      date: new Date(),
+      dueDate: new Date(),
+      description: 'Lunch',
       userId: user.id,
+      isRecurring: false,
     },
   });
 
-  // Criando uma receita
-  await prisma.incomes.create({
-    data: {
-      amount: 1500,
-      source: 'Salary',
-      description: 'Monthly salary',
-      userId: user.id,
-    },
-  });
-
-  // Criando um orçamento
+  // Criando orçamentos
   await prisma.budgets.create({
     data: {
-      category: 'Groceries',
-      limit: 200,
+      category: 'Entertainment',
+      limit: 200.0,
       startDate: new Date(),
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      endDate: new Date(),
       userId: user.id,
     },
   });
 
-  // Criando uma meta
+  // Criando metas
   await prisma.goals.create({
     data: {
       name: 'Vacation Fund',
-      target: 5000,
-      current: 200,
-      deadline: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      target: 1500.0,
+      deadline: new Date('2025-12-31'),
       userId: user.id,
     },
   });
 
-  // Criando um investimento
-  await prisma.investments.create({
+  // Criando contas
+  const account = await prisma.accounts.create({
     data: {
-      amount: 500,
-      type: 'Stocks',
-      description: 'Invested in tech stocks',
+      name: 'PicPay',
+      type: 'Checking',
+      balance: 1000.0,
       userId: user.id,
     },
   });
 
-  console.log('Data seeded successfully');
+  // Criando transações
+  await prisma.transactions.create({
+    data: {
+      amount: 100.0,
+      type: 'ENTRY',
+      description: 'Shopping',
+      userId: user.id,
+      accountId: account.id,
+    },
+  });
+
+  console.log('Seed data created!');
 }
 
 main()

@@ -16,7 +16,6 @@ model Users {
   updatedAt    DateTime       @updatedAt
   deletedAt    DateTime?
   expenses     Expenses[]
-  incomes      Incomes[]
   budgets      Budgets[]
   goals        Goals[]
   bills        Bills[]
@@ -55,22 +54,6 @@ enum RecurrenceType {
   WEEKLY
   MONTHLY
   YEARLY
-}
-
-model Incomes {
-  id          String    @id @default(cuid())
-  amount      Float
-  source      String
-  date        DateTime  @default(now())
-  description String?
-  userId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  user Users @relation(fields: [userId], references: [id])
-
-  @@map("incomes")
 }
 
 model Bills {
@@ -136,22 +119,21 @@ model Transactions {
   date        DateTime        @default(now())
   description String?
   userId      String
-  accountId   String
-  categoryId  String?
+  accountId   String?
+  category    String?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
 
-  user    Users    @relation(fields: [userId], references: [id])
-  account Accounts @relation(fields: [accountId], references: [id])
+  user    Users     @relation(fields: [userId], references: [id])
+  account Accounts? @relation(fields: [accountId], references: [id])
 
   @@map("transactions")
 }
 
 enum TransactionType {
-  INCOME
-  EXPENSE
-  TRANSFER
+  ENTRY
+  EXIT
 }
 
 model Payments {

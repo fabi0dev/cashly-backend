@@ -34,9 +34,9 @@ export class AccountController {
   async update(
     @JwtDecode() { userId }: JwtPayload,
     @Param('id') id: string,
-    @Body() updateAccountDto: UpdateAccountDTO,
+    @Body() body: UpdateAccountDTO,
   ): Promise<AccountDTO> {
-    return await AccountService.update(userId, id, updateAccountDto);
+    return await AccountService.update(userId, id, body);
   }
 
   @Get()

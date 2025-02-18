@@ -55,11 +55,11 @@ export class TransactionRepository {
 
   static async update(
     id: string,
-    updateTransactionDTO: UpdateTransactionDTO,
+    data: UpdateTransactionDTO,
   ): Promise<TransactionEntity> {
     return await prisma.transactions.update({
       where: { id, deletedAt: null },
-      data: updateTransactionDTO,
+      data,
     });
   }
 

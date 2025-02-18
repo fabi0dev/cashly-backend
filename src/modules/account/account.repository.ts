@@ -11,7 +11,7 @@ export class AccountRepository {
     userId: string,
     data: CreateAccountDTO,
   ): Promise<AccountEntity> {
-    return prisma.accounts.create({
+    return await prisma.accounts.create({
       data: {
         ...data,
         userId,
@@ -47,7 +47,7 @@ export class AccountRepository {
   }
 
   static async findOne(userId: string, id: string): Promise<AccountEntity> {
-    return prisma.accounts.findUnique({
+    return await prisma.accounts.findUnique({
       where: { userId, id, deletedAt: null },
     });
   }
@@ -57,14 +57,14 @@ export class AccountRepository {
     id: string,
     data: UpdateAccountDTO,
   ): Promise<AccountEntity> {
-    return prisma.accounts.update({
+    return await prisma.accounts.update({
       where: { userId, id, deletedAt: null },
       data,
     });
   }
 
   static async delete(userId: string, id: string): Promise<void> {
-    prisma.accounts.update({
+    await prisma.accounts.update({
       data: { deletedAt: new Date() },
       where: { id, userId, deletedAt: null },
     });

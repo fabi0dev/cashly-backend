@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateAccountDTO {
   @IsString()
@@ -7,6 +7,9 @@ export class CreateAccountDTO {
 
   @IsString()
   type: string;
+
+  @IsBoolean()
+  isDefault: boolean;
 
   @IsNumber()
   @Transform(({ value }) => Number(value))

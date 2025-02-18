@@ -8,5 +8,5 @@ export class TransactionDTO {
   description?: string;
   userId: string;
   accountId: string;
-  categoryId?: string;
+  category?: string;
 }

@@ -8,20 +8,16 @@ datasource db {
 }
 
 model Users {
-  id           String         @id @default(cuid())
-  name         String
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime?
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
   expenses     Expenses[]
-  budgets      Budgets[]
-  goals        Goals[]
-  bills        Bills[]
   transactions Transactions[]
-  payments     Payments[]
-  investments  Investments[]
   accounts     Accounts[]
 
   @@map("users")
@@ -44,7 +40,8 @@ model Expenses {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  user Users @relation(fields: [userId], references: [id])
+  user         Users                 @relation(fields: [userId], references: [id])
+  installments ExpenseInstallments[]
 
   @@map("expenses")
 }
@@ -56,77 +53,44 @@ enum RecurrenceType {
   YEARLY
 }
 
-model Bills {
-  id          String      @id @default(cuid())
-  amount      Float
-  interest    Float
-  dueDate     DateTime
-  isPaid      Boolean     @default(false)
-  status      BillsStatus @default(PENDING)
-  description String?
-  userId      String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deletedAt   DateTime?
+model ExpenseInstallments {
+  id                String    @id @default(cuid())
+  expenseId         String
+  amount            Float
+  dueDate           DateTime
+  paymentDate       DateTime?
+  installmentNumber Int
+  totalInstallments Int
+  isPaid            Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 
-  user    Users      @relation(fields: [userId], references: [id])
-  Payment Payments[]
+  expense      Expenses       @relation(fields: [expenseId], references: [id])
+  transactions Transactions[]
 
-  @@map("Bills")
-}
-
-enum BillsStatus {
-  PENDING
-  PAID
-}
-
-model Budgets {
-  id        String    @id @default(cuid())
-  category  String
-  limit     Float
-  startDate DateTime  @default(now())
-  endDate   DateTime
-  userId    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  user Users @relation(fields: [userId], references: [id])
-
-  @@map("budgets")
-}
-
-model Goals {
-  id        String    @id @default(cuid())
-  name      String
-  target    Float
-  current   Float     @default(0)
-  deadline  DateTime
-  userId    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  user Users @relation(fields: [userId], references: [id])
-
-  @@map("goals")
+  @@map("expense_installments")
 }
 
 model Transactions {
-  id          String          @id @default(cuid())
-  amount      Float
-  type        TransactionType
-  date        DateTime        @default(now())
-  description String?
-  userId      String
-  accountId   String?
-  category    String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
+  id                   String          @id @default(cuid())
+  amount               Float
+  type                 TransactionType
+  date                 DateTime        @default(now())
+  description          String?
+  userId               String
+  accountId            String?
+  category             String?
+  paymentMethod        PaymentMethod
+  expenseInstallmentId String?
 
-  user    Users     @relation(fields: [userId], references: [id])
-  account Accounts? @relation(fields: [accountId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user               Users                @relation(fields: [userId], references: [id])
+  account            Accounts?            @relation(fields: [accountId], references: [id])
+  expenseInstallment ExpenseInstallments? @relation(fields: [expenseInstallmentId], references: [id])
 
   @@map("transactions")
 }
@@ -136,46 +100,12 @@ enum TransactionType {
   EXIT
 }
 
-model Payments {
-  id          String        @id @default(cuid())
-  amount      Float
-  date        DateTime      @default(now())
-  description String?
-  billsId     String
-  userId      String
-  method      PaymentMethod
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
-
-  user Users @relation(fields: [userId], references: [id])
-  debt Bills @relation(fields: [billsId], references: [id])
-
-  @@map("payments")
-}
-
 enum PaymentMethod {
   CASH
   CREDIT_CARD
   DEBIT_CARD
   BANK_TRANSFER
   PIX
-}
-
-model Investments {
-  id          String    @id @default(cuid())
-  amount      Float
-  type        String
-  date        DateTime  @default(now())
-  description String?
-  userId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  user Users @relation(fields: [userId], references: [id])
-
-  @@map("investments")
 }
 
 model Accounts {
@@ -188,19 +118,8 @@ model Accounts {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  user        Users          @relation(fields: [userId], references: [id])
-  Transaction Transactions[]
+  user         Users          @relation(fields: [userId], references: [id])
+  transactions Transactions[]
 
   @@map("accounts")
-}
-
-model TransactionCategory {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  @@map("transactions_category")
 }

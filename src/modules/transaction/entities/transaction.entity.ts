@@ -8,7 +8,7 @@ export class TransactionEntity {
   description?: string;
   userId: string;
   accountId: string;
-  categoryId?: string;
+  category?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

@@ -18,7 +18,7 @@ export class ExpenseRepository {
     });
   }
 
-  static async getById(id: string): Promise<ExpenseEntity | null> {
+  static async findOne(id: string): Promise<ExpenseEntity | null> {
     return await prisma.expenses.findUnique({
       where: { id },
     });
@@ -34,7 +34,7 @@ export class ExpenseRepository {
     });
   }
 
-  static async getAll(
+  static async findAll(
     userId: string,
     page: number = 1,
     limit: number = 10,

@@ -32,7 +32,7 @@ export class TransactionRepository {
         where: { userId },
         skip,
         take: limit,
-        orderBy: { date: 'desc' },
+        orderBy: { createdAt: 'desc' },
       }),
 
       prisma.expenses.count({ where: { userId } }),

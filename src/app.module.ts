@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { ExpenseModule } from './modules/expense/expense.module';
 import { FinanceOverviewModule } from './modules/finance-overview/finance-overview.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { AccountModule } from './modules/account/account.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     ExpenseModule,
     FinanceOverviewModule,
     TransactionModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService],

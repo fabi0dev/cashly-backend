@@ -11,7 +11,7 @@ export class TransactionMapper {
       description: entity.description,
       userId: entity.userId,
       accountId: entity.accountId,
-      categoryId: entity.categoryId,
+      category: entity.category,
     };
 
     return dto;

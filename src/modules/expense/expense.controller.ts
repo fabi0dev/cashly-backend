@@ -26,7 +26,7 @@ export class ExpenseController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.expenseService.getById(id);
   }
 
@@ -36,7 +36,7 @@ export class ExpenseController {
   }
 
   @Get()
-  getAll(
+  findAll(
     @JwtDecode() tokenData: JwtPayload,
     @Query() pagination: ProhibitedPaginationDTO,
   ) {

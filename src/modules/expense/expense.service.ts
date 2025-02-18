@@ -18,7 +18,7 @@ export class ExpenseService {
   }
 
   async getById(id: string) {
-    const expenseEntity = await ExpenseRepository.getById(id);
+    const expenseEntity = await ExpenseRepository.findOne(id);
     if (!expenseEntity) {
       throw new Error('Expense not found');
     }
@@ -30,7 +30,7 @@ export class ExpenseService {
     page: number = 1,
     limit: number = 10,
   ): Promise<PaginationDTO<ExpenseDTO>> {
-    const paginatedExpenses = await ExpenseRepository.getAll(
+    const paginatedExpenses = await ExpenseRepository.findAll(
       userId,
       page,
       limit,

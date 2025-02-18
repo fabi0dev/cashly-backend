@@ -1,38 +1,40 @@
 import {
   IsDate,
   IsEnum,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
-import { TransactionType } from '@prisma/client';
+import { PaymentMethod, TransactionType } from '@prisma/client';
 import { Transform } from 'class-transformer';
 
 export class CreateTransactionDTO {
-  @IsNotEmpty()
   @IsNumber()
-  @Transform(({ value }) => parseFloat(value))
   amount: number;
 
-  @IsNotEmpty()
   @IsEnum(TransactionType)
   type: TransactionType;
+
+  @IsDate()
+  @Transform(({ value }) => (value ? new Date(value) : null))
+  date: Date;
 
   @IsOptional()
   @IsString()
   description?: string;
 
+  @IsUUID()
+  userId: string;
+
+  @IsOptional()
+  @IsUUID()
+  accountId?: string;
+
   @IsOptional()
   @IsString()
   category?: string;
 
-  @IsOptional()
-  @IsDate()
-  @Transform(({ value }) => (value ? new Date(value) : null))
-  date?: Date;
-
-  @IsOptional()
-  @IsString()
-  accountId: string;
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
 }

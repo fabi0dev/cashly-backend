@@ -4,6 +4,7 @@ import { CreateAccountDTO } from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account.dto';
 import { AccountDTO } from './dto/account.dto';
 import { AccountMapper } from './mappers/account.mapper';
+import { PaginationDTO } from 'src/dto/pagination.dto';
 
 @Injectable()
 export class AccountService {
@@ -15,12 +16,21 @@ export class AccountService {
     return AccountMapper.toDTO(account);
   }
 
-  static async findAll(userId: string): Promise<AccountDTO[]> {
-    return AccountRepository.findAll(userId);
+  static async findAll(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginationDTO<AccountDTO>> {
+    const accounts = await AccountRepository.findAll(userId, page, limit);
+
+    return {
+      ...accounts,
+      data: accounts.data.map(AccountMapper.toDTO),
+    };
   }
 
   static async findOne(userId: string, id: string): Promise<AccountDTO> {
-    return AccountRepository.findOne(userId, id);
+    return await AccountRepository.findOne(userId, id);
   }
 
   static async update(

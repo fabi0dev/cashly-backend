@@ -29,7 +29,7 @@ export class TransactionRepository {
 
     const [data, totalItems] = await prisma.$transaction([
       prisma.transactions.findMany({
-        where: { userId },
+        where: { userId, deletedAt: null },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -49,7 +49,7 @@ export class TransactionRepository {
 
   static async findById(id: string): Promise<TransactionEntity | null> {
     return await prisma.transactions.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
   }
 
@@ -58,7 +58,7 @@ export class TransactionRepository {
     updateTransactionDTO: UpdateTransactionDTO,
   ): Promise<TransactionEntity> {
     return await prisma.transactions.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data: updateTransactionDTO,
     });
   }
@@ -68,6 +68,7 @@ export class TransactionRepository {
       where: {
         userId,
         id,
+        deletedAt: null,
       },
       data: {
         deletedAt: new Date(),

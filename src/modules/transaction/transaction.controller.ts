@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CreateTransactionDTO } from './dto/create-transaction.dto';
 import { TransactionDTO } from './dto/transaction.dto';
@@ -15,6 +16,7 @@ import { TransactionService } from './transaction.service';
 import { JwtPayload } from 'src/types/jwt-payload';
 import { JwtDecode } from 'src/decorators/jwt-decoded.decorator';
 import { PaginationDTO } from 'src/dto/pagination.dto';
+import { ProhibitedPaginationDTO } from 'src/dto/pagination-prohibited.dto';
 
 @UseGuards(AuthGuard)
 @Controller('transaction')
@@ -32,8 +34,13 @@ export class TransactionController {
   @Get()
   async findAll(
     @JwtDecode() tokenData: JwtPayload,
+    @Query() pagination: ProhibitedPaginationDTO,
   ): Promise<PaginationDTO<TransactionDTO>> {
-    return await this.transactionService.getAll(tokenData.userId);
+    return await this.transactionService.getAll(
+      tokenData.userId,
+      pagination.page,
+      pagination.limit,
+    );
   }
 
   @Get(':id')

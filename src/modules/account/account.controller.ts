@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AccountDTO } from './dto/account.dto';
 import { AccountService } from './account.service';
@@ -15,6 +16,8 @@ import { JwtDecode } from 'src/decorators/jwt-decoded.decorator';
 import { JwtPayload } from 'src/types/jwt-payload';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdateAccountDTO } from './dto/update-account.dto';
+import { ProhibitedPaginationDTO } from 'src/dto/pagination-prohibited.dto';
+import { PaginationDTO } from 'src/dto/pagination.dto';
 
 @UseGuards(AuthGuard)
 @Controller('account')
@@ -37,8 +40,15 @@ export class AccountController {
   }
 
   @Get()
-  async findAll(@JwtDecode() { userId }: JwtPayload): Promise<AccountDTO[]> {
-    return await AccountService.findAll(userId);
+  async findAll(
+    @JwtDecode() { userId }: JwtPayload,
+    @Query() pagination: ProhibitedPaginationDTO,
+  ): Promise<PaginationDTO<AccountDTO>> {
+    return await AccountService.findAll(
+      userId,
+      pagination.page,
+      pagination.limit,
+    );
   }
 
   @Get(':id')

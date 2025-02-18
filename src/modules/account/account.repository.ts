@@ -3,6 +3,7 @@ import { prisma } from 'src/services/prisma.service';
 import { CreateAccountDTO } from './dto/create-account.dto';
 import { AccountEntity } from './entities/account.entity';
 import { UpdateAccountDTO } from './dto/update-account.dto';
+import { PaginationDTO } from 'src/dto/pagination.dto';
 
 @Injectable()
 export class AccountRepository {
@@ -18,10 +19,31 @@ export class AccountRepository {
     });
   }
 
-  static async findAll(userId: string): Promise<AccountEntity[]> {
-    return prisma.accounts.findMany({
-      where: { userId, deletedAt: null },
-    });
+  static async findAll(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginationDTO<AccountEntity>> {
+    const skip = (page - 1) * limit;
+
+    const [data, totalItems] = await prisma.$transaction([
+      prisma.accounts.findMany({
+        where: { userId, deletedAt: null },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+
+      prisma.expenses.count({ where: { userId } }),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data,
+      totalItems,
+      totalPages,
+    };
   }
 
   static async findOne(userId: string, id: string): Promise<AccountEntity> {

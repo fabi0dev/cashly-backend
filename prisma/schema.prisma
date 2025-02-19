@@ -81,7 +81,7 @@ model Transactions {
   userId               String
   accountId            String?
   category             String?
-  paymentMethod        PaymentMethod
+  paymentMethod        PaymentMethod?
   expenseInstallmentId String?
 
   createdAt DateTime  @default(now())

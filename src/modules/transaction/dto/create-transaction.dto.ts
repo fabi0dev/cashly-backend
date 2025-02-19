@@ -4,7 +4,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { PaymentMethod, TransactionType } from '@prisma/client';
 import { Transform } from 'class-transformer';
@@ -24,17 +23,14 @@ export class CreateTransactionDTO {
   @IsString()
   description?: string;
 
-  @IsUUID()
-  userId: string;
-
-  @IsOptional()
-  @IsUUID()
-  accountId?: string;
+  @IsString()
+  accountId: string;
 
   @IsOptional()
   @IsString()
   category?: string;
 
+  @IsOptional()
   @IsEnum(PaymentMethod)
-  paymentMethod: PaymentMethod;
+  paymentMethod?: PaymentMethod;
 }

@@ -67,7 +67,7 @@ CREATE TABLE "transactions" (
     "userId" TEXT NOT NULL,
     "accountId" TEXT,
     "category" TEXT,
-    "paymentMethod" "PaymentMethod" NOT NULL,
+    "paymentMethod" "PaymentMethod",
     "expenseInstallmentId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

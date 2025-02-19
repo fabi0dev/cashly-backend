@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PaymentMethod, PrismaClient } from '@prisma/client';
+import { fakerEN as faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Criação de um usuário
   const user = await prisma.users.create({
     data: {
       name: 'John Doe',
@@ -13,80 +13,99 @@ async function main() {
     },
   });
 
-  // Criação de contas para o usuário
-  const account = await prisma.accounts.create({
-    data: {
-      name: 'Personal Account',
-      type: 'Checking',
-      balance: 1000.0,
-      userId: user.id,
-    },
-  });
+  const banks = ['Nubank', 'Itaú', 'Bradesco', 'Santander', 'Inter', 'Caixa'];
+  const accounts = await Promise.all(
+    banks.map((bank, index) =>
+      prisma.accounts.create({
+        data: {
+          name: bank,
+          type: index % 2 === 0 ? 'Checking' : 'Savings',
+          balance: faker.number.float({
+            min: 500,
+            max: 20000,
+          }),
+          userId: user.id,
+          isDefault: index === 0,
+        },
+      }),
+    ),
+  );
 
-  // Criação de uma despesa (expense) para o usuário
-  const expense = await prisma.expenses.create({
-    data: {
-      amount: 500.0,
-      category: 'Rent',
-      date: new Date(),
-      dueDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-      userId: user.id,
-      isRecurring: true,
-      recurrenceType: 'MONTHLY',
-    },
-  });
+  const categories = [
+    'Food',
+    'Transport',
+    'Leisure',
+    'Housing',
+    'Health',
+    'Education',
+  ];
 
-  // Criação de parcelas de despesa (expense installments)
-  await prisma.expenseInstallments.createMany({
-    data: [
-      {
-        expenseId: expense.id,
-        amount: 125.0,
-        dueDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-        installmentNumber: 1,
-        totalInstallments: 4,
-      },
-      {
-        expenseId: expense.id,
-        amount: 125.0,
-        dueDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
-        installmentNumber: 2,
-        totalInstallments: 4,
-      },
-      {
-        expenseId: expense.id,
-        amount: 125.0,
-        dueDate: new Date(new Date().setMonth(new Date().getMonth() + 3)),
-        installmentNumber: 3,
-        totalInstallments: 4,
-      },
-      {
-        expenseId: expense.id,
-        amount: 125.0,
-        dueDate: new Date(new Date().setMonth(new Date().getMonth() + 4)),
-        installmentNumber: 4,
-        totalInstallments: 4,
-      },
-    ],
-  });
+  for (let i = 0; i < 20; i++) {
+    const isInstallment = faker.datatype.boolean();
+    const totalInstallments = isInstallment
+      ? faker.number.int({ min: 2, max: 12 })
+      : 1;
+    const amount = faker.number.float({ min: 50, max: 1000 });
+    const installmentAmount = amount / totalInstallments;
+    const dueDate = faker.date.past({ years: 0.2 });
 
-  await prisma.transactions.create({
-    data: {
-      amount: 125.0,
-      type: 'EXIT',
-      date: new Date(),
-      userId: user.id,
-      accountId: account.id,
-      paymentMethod: 'CREDIT_CARD',
-    },
-  });
+    const expense = await prisma.expenses.create({
+      data: {
+        amount,
+        category: faker.helpers.arrayElement(categories),
+        date: dueDate,
+        isPaid: faker.datatype.boolean(),
+        description: faker.commerce.productName(),
+        userId: user.id,
+        isRecurring: faker.datatype.boolean(),
+      },
+    });
 
-  console.log('Seed data created successfully');
+    for (let j = 0; j < totalInstallments; j++) {
+      const installment = await prisma.expenseInstallments.create({
+        data: {
+          expenseId: expense.id,
+          amount: installmentAmount,
+          dueDate: new Date(
+            dueDate.getFullYear(),
+            dueDate.getMonth() + j,
+            dueDate.getDate(),
+          ),
+          installmentNumber: j + 1,
+          totalInstallments,
+          isPaid: faker.datatype.boolean(),
+        },
+      });
+
+      await prisma.transactions.create({
+        data: {
+          amount: installmentAmount,
+          type: faker.helpers.shuffle(['EXIT', 'ENTRY'])[0],
+          date: dueDate,
+          description: expense.description,
+          userId: user.id,
+          accountId: faker.helpers.arrayElement(accounts).id,
+          category: expense.category,
+          paymentMethod: faker.helpers.arrayElement<PaymentMethod>([
+            'CASH',
+            'CREDIT_CARD',
+            'DEBIT_CARD',
+            'BANK_TRANSFER',
+            'PIX',
+          ]),
+          expenseInstallmentId: installment.id,
+        },
+      });
+    }
+  }
+
+  console.log('Seed created successfully!');
 }
 
 main()
   .catch((e) => {
-    throw e;
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

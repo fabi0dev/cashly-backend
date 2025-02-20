@@ -12,4 +12,11 @@ export class TransactionEntity {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
+
+  account: Account;
 }
+
+type Account = {
+  id: string;
+  name: string;
+};

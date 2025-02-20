@@ -5,6 +5,10 @@ export class TransactionMapper {
   static toDTO(entity: TransactionEntity): TransactionDTO {
     const { id, amount, type, date, description, userId, accountId, category } =
       entity;
+    const account = {
+      id: accountId,
+      name: entity.account.name,
+    };
 
     return {
       id,
@@ -15,6 +19,8 @@ export class TransactionMapper {
       userId,
       accountId,
       category,
+
+      account,
     };
   }
 }

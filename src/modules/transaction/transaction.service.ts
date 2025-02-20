@@ -5,6 +5,7 @@ import { TransactionRepository } from './transaction.repository';
 import { TransactionMapper } from './mappers/transaction.mapper';
 import { PaginationDTO } from 'src/dto/pagination.dto';
 import { UpdateTransactionDTO } from './dto/update-transaction.dto';
+import { AccountRepository } from '../account/account.repository';
 
 @Injectable()
 export class TransactionService {
@@ -13,6 +14,7 @@ export class TransactionService {
     data: CreateTransactionDTO,
   ): Promise<TransactionDTO> {
     const transaction = await TransactionRepository.create(userId, data);
+    await AccountRepository.recalculateBalances(userId);
     return TransactionMapper.toDTO(transaction);
   }
 
@@ -21,6 +23,7 @@ export class TransactionService {
     body: UpdateTransactionDTO,
   ): Promise<TransactionDTO> {
     const expenseEntity = await TransactionRepository.update(id, body);
+    await AccountRepository.recalculateBalances(expenseEntity.userId);
     return TransactionMapper.toDTO(expenseEntity);
   }
 

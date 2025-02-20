@@ -46,6 +46,15 @@ export class AccountRepository {
     };
   }
 
+  static async findAllWithoutPagination(
+    userId: string,
+  ): Promise<AccountEntity[]> {
+    return await prisma.accounts.findMany({
+      where: { userId, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   static async findOne(userId: string, id: string): Promise<AccountEntity> {
     return await prisma.accounts.findUnique({
       where: { userId, id, deletedAt: null },
@@ -68,5 +77,27 @@ export class AccountRepository {
       data: { deletedAt: new Date() },
       where: { id, userId, deletedAt: null },
     });
+  }
+
+  static async recalculateBalances(userId: string): Promise<void> {
+    const accountBalances = await prisma.transactions.groupBy({
+      by: ['accountId'],
+      where: { userId, accountId: { not: null } },
+      _sum: {
+        amount: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const updatePromises = accountBalances.map(({ accountId, _sum }) =>
+      prisma.accounts.update({
+        where: { id: accountId as string },
+        data: { balance: _sum.amount || 0 },
+      }),
+    );
+
+    await prisma.$transaction(updatePromises);
   }
 }

@@ -17,6 +17,7 @@ export class TransactionRepository {
         userId,
         ...createTransactionDTO,
       },
+      include: TransactionRepository.commonIncludes,
     });
   }
 
@@ -29,13 +30,26 @@ export class TransactionRepository {
 
     const [data, totalItems] = await prisma.$transaction([
       prisma.transactions.findMany({
-        where: { userId, deletedAt: null },
+        where: {
+          userId,
+          deletedAt: null,
+          ...TransactionRepository.commonWhere,
+        },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          ...TransactionRepository.commonIncludes,
+        },
       }),
 
-      prisma.expenses.count({ where: { userId } }),
+      prisma.transactions.count({
+        where: {
+          userId,
+          deletedAt: null,
+          ...TransactionRepository.commonWhere,
+        },
+      }),
     ]);
 
     const totalPages = Math.ceil(totalItems / limit);
@@ -49,7 +63,21 @@ export class TransactionRepository {
 
   static async findById(id: string): Promise<TransactionEntity | null> {
     return await prisma.transactions.findUnique({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, ...TransactionRepository.commonWhere },
+      include: TransactionRepository.commonIncludes,
+    });
+  }
+
+  static async findByAccountId(
+    accountId: string,
+  ): Promise<TransactionEntity[] | null> {
+    return await prisma.transactions.findMany({
+      where: {
+        accountId,
+        deletedAt: null,
+        ...TransactionRepository.commonWhere,
+      },
+      include: TransactionRepository.commonIncludes,
     });
   }
 
@@ -58,7 +86,8 @@ export class TransactionRepository {
     data: UpdateTransactionDTO,
   ): Promise<TransactionEntity> {
     return await prisma.transactions.update({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, ...TransactionRepository.commonWhere },
+      include: TransactionRepository.commonIncludes,
       data,
     });
   }
@@ -70,9 +99,23 @@ export class TransactionRepository {
         id,
         deletedAt: null,
       },
+      include: TransactionRepository.commonIncludes,
       data: {
         deletedAt: new Date(),
       },
     });
   }
+
+  static commonWhere = {
+    account: { deletedAt: null },
+  };
+
+  static commonIncludes = {
+    account: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  };
 }

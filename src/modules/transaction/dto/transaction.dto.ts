@@ -9,4 +9,11 @@ export class TransactionDTO {
   userId: string;
   accountId: string;
   category?: string;
+
+  account: Account;
 }
+
+type Account = {
+  id: string;
+  name: string;
+};

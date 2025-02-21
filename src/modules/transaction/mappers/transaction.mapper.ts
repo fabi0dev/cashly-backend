@@ -1,3 +1,4 @@
+import { formatDateUTCToISO } from 'src/utils/date';
 import { TransactionDTO } from '../dto/transaction.dto';
 import { TransactionEntity } from '../entities/transaction.entity';
 
@@ -14,7 +15,7 @@ export class TransactionMapper {
       id,
       amount,
       type,
-      date,
+      date: formatDateUTCToISO(date.toISOString()),
       description,
       userId,
       accountId,

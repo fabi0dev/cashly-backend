@@ -4,7 +4,7 @@ export class TransactionDTO {
   id: string;
   amount: number;
   type: TransactionType;
-  date: Date;
+  date: string;
   description?: string;
   userId: string;
   accountId: string;

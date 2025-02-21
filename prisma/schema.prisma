@@ -26,7 +26,7 @@ model Users {
 model Expenses {
   id                String          @id @default(cuid())
   amount            Float
-  category          String?
+  categoryId        String?
   date              DateTime        @default(now())
   dueDate           DateTime?
   isPaid            Boolean         @default(false)
@@ -42,6 +42,8 @@ model Expenses {
 
   user         Users                 @relation(fields: [userId], references: [id])
   installments ExpenseInstallments[]
+
+  Category Category? @relation(fields: [categoryId], references: [id])
 
   @@map("expenses")
 }
@@ -80,7 +82,7 @@ model Transactions {
   description          String?
   userId               String
   accountId            String?
-  category             String?
+  categoryId           String?
   paymentMethod        PaymentMethod?
   expenseInstallmentId String?
 
@@ -91,6 +93,7 @@ model Transactions {
   user               Users                @relation(fields: [userId], references: [id])
   account            Accounts?            @relation(fields: [accountId], references: [id])
   expenseInstallment ExpenseInstallments? @relation(fields: [expenseInstallmentId], references: [id])
+  Category           Category?            @relation(fields: [categoryId], references: [id])
 
   @@map("transactions")
 }
@@ -108,6 +111,22 @@ enum PaymentMethod {
   PIX
 }
 
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  isImportant Boolean @default(false)
+  isFavorite  Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Expenses     Expenses[]
+  Transactions Transactions[]
+
+  @@map("categories")
+}
+
 model Accounts {
   id        String    @id @default(cuid())
   name      String
@@ -123,4 +142,10 @@ model Accounts {
   transactions Transactions[]
 
   @@map("accounts")
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CREDIT_CARD
 }

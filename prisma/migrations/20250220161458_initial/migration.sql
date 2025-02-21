@@ -7,6 +7,9 @@ CREATE TYPE "TransactionType" AS ENUM ('ENTRY', 'EXIT');
 -- CreateEnum
 CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'PIX');
 
+-- CreateEnum
+CREATE TYPE "AccountType" AS ENUM ('CHECKING', 'SAVINGS', 'CREDIT_CARD');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,

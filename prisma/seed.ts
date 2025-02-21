@@ -19,7 +19,12 @@ async function main() {
       prisma.accounts.create({
         data: {
           name: bank,
-          type: index % 2 === 0 ? 'Checking' : 'Savings',
+          type:
+            index % 2 === 0
+              ? index % 2 === 0
+                ? 'CHECKING'
+                : 'SAVINGS'
+              : 'CREDIT_CARD',
           balance: faker.number.float({
             min: 500,
             max: 20000,
@@ -31,13 +36,17 @@ async function main() {
     ),
   );
 
-  const categories = [
-    'Food',
-    'Transport',
-    'Leisure',
-    'Housing',
-    'Health',
-    'Education',
+  const CategoryIncomes = ['Salário', 'Investimentos', 'Outro'];
+
+  const CategoryExpenses = [
+    'Alimentação',
+    'Transporte',
+    'Moradia',
+    'Saúde',
+    'Educação',
+    'Lazer',
+    'Mercado',
+    'Outro',
   ];
 
   for (let i = 0; i < 20; i++) {
@@ -52,7 +61,7 @@ async function main() {
     const expense = await prisma.expenses.create({
       data: {
         amount,
-        category: faker.helpers.arrayElement(categories),
+        category: faker.helpers.arrayElement(CategoryExpenses),
         date: dueDate,
         isPaid: faker.datatype.boolean(),
         description: faker.commerce.productName(),
@@ -77,15 +86,20 @@ async function main() {
         },
       });
 
+      const transactionType = faker.helpers.shuffle(['EXIT', 'ENTRY'])[0];
+      const transactionCategory = faker.helpers.shuffle(
+        transactionType === 'EXIT' ? CategoryExpenses : CategoryIncomes,
+      )[0];
+
       await prisma.transactions.create({
         data: {
           amount: installmentAmount,
-          type: faker.helpers.shuffle(['EXIT', 'ENTRY'])[0],
+          type: transactionType,
           date: dueDate,
           description: expense.description,
           userId: user.id,
           accountId: faker.helpers.arrayElement(accounts).id,
-          category: expense.category,
+          category: transactionCategory,
           paymentMethod: faker.helpers.arrayElement<PaymentMethod>([
             'CASH',
             'CREDIT_CARD',

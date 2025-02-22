@@ -17,7 +17,7 @@ export class CreateExpenseDTO {
 
   @IsOptional()
   @IsString()
-  category?: string;
+  categoryId?: string;
 
   @IsDate()
   @Transform(({ value }) => new Date(value))

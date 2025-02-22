@@ -25,19 +25,19 @@ export class TransactionController {
 
   @Post()
   async create(
-    @JwtDecode() tokenData: JwtPayload,
+    @JwtDecode() jwtPayload: JwtPayload,
     @Body() body: CreateTransactionDTO,
   ): Promise<TransactionDTO> {
-    return await this.transactionService.create(tokenData.userId, body);
+    return await this.transactionService.create(jwtPayload.userId, body);
   }
 
   @Get()
   async findAll(
-    @JwtDecode() tokenData: JwtPayload,
+    @JwtDecode() jwtPayload: JwtPayload,
     @Query() pagination: ProhibitedPaginationDTO,
   ): Promise<PaginationDTO<TransactionDTO>> {
     return await this.transactionService.getAll(
-      tokenData.userId,
+      jwtPayload.userId,
       pagination.page,
       pagination.limit,
     );

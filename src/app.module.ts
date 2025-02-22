@@ -7,6 +7,7 @@ import { ExpenseModule } from './modules/expense/expense.module';
 import { FinanceOverviewModule } from './modules/finance-overview/finance-overview.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { AccountModule } from './modules/account/account.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AccountModule } from './modules/account/account.module';
     FinanceOverviewModule,
     TransactionModule,
     AccountModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

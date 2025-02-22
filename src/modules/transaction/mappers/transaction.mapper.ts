@@ -4,12 +4,20 @@ import { TransactionEntity } from '../entities/transaction.entity';
 
 export class TransactionMapper {
   static toDTO(entity: TransactionEntity): TransactionDTO {
-    const { id, amount, type, date, description, userId, accountId, category } =
-      entity;
-    const account = {
-      id: accountId,
-      name: entity.account.name,
-    };
+    const {
+      id,
+      amount,
+      type,
+      date,
+      description,
+      userId,
+      accountId,
+      accountBalance,
+      categoryId,
+
+      account,
+      category,
+    } = entity;
 
     return {
       id,
@@ -19,8 +27,10 @@ export class TransactionMapper {
       description,
       userId,
       accountId,
-      category,
+      accountBalance,
+      categoryId,
 
+      category,
       account,
     };
   }

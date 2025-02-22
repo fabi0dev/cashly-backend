@@ -1,4 +1,4 @@
-import { PaymentMethod, PrismaClient } from '@prisma/client';
+import { PaymentMethod, PrismaClient, TransactionType } from '@prisma/client';
 import { fakerEN as faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
@@ -19,35 +19,40 @@ async function main() {
       prisma.accounts.create({
         data: {
           name: bank,
-          type:
-            index % 2 === 0
-              ? index % 2 === 0
-                ? 'CHECKING'
-                : 'SAVINGS'
-              : 'CREDIT_CARD',
-          balance: faker.number.float({
-            min: 500,
-            max: 20000,
-          }),
+          type: index % 2 === 0 ? 'CHECKING' : 'CREDIT_CARD',
+          balance: faker.number.float({ min: 500, max: 20000 }),
           userId: user.id,
           isDefault: index === 0,
+          deletedAt: null,
         },
       }),
     ),
   );
 
-  const CategoryIncomes = ['Salário', 'Investimentos', 'Outro'];
+  const categoryIncomes = await Promise.all(
+    ['Salário', 'Investimentos', 'Outro'].map((name) =>
+      prisma.category.create({
+        data: { name, userId: user.id, type: 'INCOME', deletedAt: null },
+      }),
+    ),
+  );
 
-  const CategoryExpenses = [
-    'Alimentação',
-    'Transporte',
-    'Moradia',
-    'Saúde',
-    'Educação',
-    'Lazer',
-    'Mercado',
-    'Outro',
-  ];
+  const categoryExpenses = await Promise.all(
+    [
+      'Alimentação',
+      'Transporte',
+      'Moradia',
+      'Saúde',
+      'Educação',
+      'Lazer',
+      'Mercado',
+      'Outro',
+    ].map((name) =>
+      prisma.category.create({
+        data: { name, userId: user.id, type: 'EXPENSE', deletedAt: null },
+      }),
+    ),
+  );
 
   for (let i = 0; i < 20; i++) {
     const isInstallment = faker.datatype.boolean();
@@ -58,15 +63,18 @@ async function main() {
     const installmentAmount = amount / totalInstallments;
     const dueDate = faker.date.past({ years: 0.2 });
 
+    const category = faker.helpers.arrayElement(categoryExpenses);
+
     const expense = await prisma.expenses.create({
       data: {
         amount,
-        category: faker.helpers.arrayElement(CategoryExpenses),
+        categoryId: category.id,
         date: dueDate,
         isPaid: faker.datatype.boolean(),
         description: faker.commerce.productName(),
         userId: user.id,
         isRecurring: faker.datatype.boolean(),
+        deletedAt: null,
       },
     });
 
@@ -83,13 +91,19 @@ async function main() {
           installmentNumber: j + 1,
           totalInstallments,
           isPaid: faker.datatype.boolean(),
+          deletedAt: null,
         },
       });
 
-      const transactionType = faker.helpers.shuffle(['EXIT', 'ENTRY'])[0];
-      const transactionCategory = faker.helpers.shuffle(
-        transactionType === 'EXIT' ? CategoryExpenses : CategoryIncomes,
-      )[0];
+      const transactionType = faker.helpers.arrayElement<TransactionType>([
+        'EXIT',
+        'ENTRY',
+      ]);
+      const transactionCategory = faker.helpers.arrayElement(
+        transactionType === 'EXIT' ? categoryExpenses : categoryIncomes,
+      );
+
+      const account = faker.helpers.arrayElement(accounts);
 
       await prisma.transactions.create({
         data: {
@@ -98,8 +112,10 @@ async function main() {
           date: dueDate,
           description: expense.description,
           userId: user.id,
-          accountId: faker.helpers.arrayElement(accounts).id,
-          category: transactionCategory,
+          accountId: account.id,
+          accountBalance: account.balance,
+
+          categoryId: transactionCategory.id,
           paymentMethod: faker.helpers.arrayElement<PaymentMethod>([
             'CASH',
             'CREDIT_CARD',
@@ -108,12 +124,13 @@ async function main() {
             'PIX',
           ]),
           expenseInstallmentId: installment.id,
+          deletedAt: null,
         },
       });
     }
   }
 
-  console.log('Seed created successfully!');
+  console.log('Seed criado com sucesso!');
 }
 
 main()

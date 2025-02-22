@@ -54,8 +54,8 @@ export class TransactionService {
     };
   }
 
-  async remove(userId: string, id: string): Promise<TransactionDTO> {
-    const expenseEntity = await TransactionRepository.remove(userId, id);
-    return TransactionMapper.toDTO(expenseEntity);
+  async remove(userId: string, id: string): Promise<void> {
+    await TransactionRepository.remove(userId, id);
+    await AccountRepository.recalculateBalances(userId);
   }
 }

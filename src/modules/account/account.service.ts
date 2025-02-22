@@ -5,6 +5,7 @@ import { UpdateAccountDTO } from './dto/update-account.dto';
 import { AccountDTO } from './dto/account.dto';
 import { AccountMapper } from './mappers/account.mapper';
 import { PaginationDTO } from 'src/dto/pagination.dto';
+import { TransactionRepository } from '../transaction/transaction.repository';
 
 @Injectable()
 export class AccountService {
@@ -13,6 +14,16 @@ export class AccountService {
     body: CreateAccountDTO,
   ): Promise<AccountDTO> {
     const account = await AccountRepository.create(userId, body);
+
+    await TransactionRepository.create(userId, {
+      accountId: account.id,
+      amount: body.balance,
+      categoryId: null,
+      description: 'Saldo inicial da conta (automático)',
+      date: new Date(),
+      type: 'ENTRY',
+    });
+
     return AccountMapper.toDTO(account);
   }
 
@@ -21,6 +32,7 @@ export class AccountService {
     page: number,
     limit: number,
   ): Promise<PaginationDTO<AccountDTO>> {
+    await AccountRepository.recalculateBalances(userId);
     const accounts = await AccountRepository.findAll(userId, page, limit);
 
     return {

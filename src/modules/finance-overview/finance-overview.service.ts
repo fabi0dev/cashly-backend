@@ -20,6 +20,10 @@ export class FinanceOverviewService {
           gte: firstDayOfMonth,
           lte: lastDayOfMonth,
         },
+        deletedAt: null,
+        account: {
+          deletedAt: null,
+        },
       },
     });
 
@@ -32,12 +36,23 @@ export class FinanceOverviewService {
           gte: firstDayOfMonth,
           lte: lastDayOfMonth,
         },
+        deletedAt: null,
+        account: {
+          deletedAt: null,
+        },
+      },
+    });
+
+    const totalBalance = await prisma.accounts.aggregate({
+      _sum: { balance: true },
+      where: {
+        userId,
+        deletedAt: null,
       },
     });
 
     return {
-      totalBalance:
-        (totalEntries._sum.amount || 0) - (totalExits._sum.amount || 0),
+      totalBalance: totalBalance._sum.balance || 0,
       totalExits: totalExits._sum.amount || 0,
       totalEntries: totalEntries._sum.amount || 0,
     };
@@ -59,11 +74,22 @@ export class FinanceOverviewService {
           gte: startDate,
         },
       },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
     });
 
     const expenseDistribution = expenses.reduce(
       (acc, expense) => {
-        const category = expense.category || 'Uncategorized';
+        const category = expense.category.name || 'Uncategorized';
         acc[category] = (acc[category] || 0) + expense.amount;
         return acc;
       },

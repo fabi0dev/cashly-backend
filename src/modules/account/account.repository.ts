@@ -80,22 +80,43 @@ export class AccountRepository {
   }
 
   static async recalculateBalances(userId: string): Promise<void> {
-    const accountBalances = await prisma.transactions.groupBy({
+    const accountEntries = await prisma.transactions.groupBy({
       by: ['accountId'],
-      where: { userId, accountId: { not: null } },
-      _sum: {
-        amount: true,
-      },
-      _count: {
-        _all: true,
-      },
+      where: { userId, type: 'ENTRY', deletedAt: null },
+      _sum: { amount: true },
     });
 
-    const updatePromises = accountBalances.map(({ accountId, _sum }) =>
-      prisma.accounts.update({
-        where: { id: accountId as string },
-        data: { balance: _sum.amount || 0 },
-      }),
+    const accountExits = await prisma.transactions.groupBy({
+      by: ['accountId'],
+      where: { userId, type: 'EXIT', deletedAt: null },
+      _sum: { amount: true },
+    });
+
+    const balancesMap = new Map<string, number>();
+
+    accountEntries.forEach(({ accountId, _sum }) => {
+      balancesMap.set(accountId, _sum.amount || 0);
+    });
+
+    accountExits.forEach(({ accountId, _sum }) => {
+      const currentBalance = balancesMap.get(accountId) || 0;
+      balancesMap.set(accountId, currentBalance - (_sum.amount || 0));
+    });
+
+    if (balancesMap.size === 0) {
+      await prisma.accounts.updateMany({
+        where: { userId },
+        data: { balance: 0 },
+      });
+      return;
+    }
+
+    const updatePromises = Array.from(balancesMap.entries()).map(
+      ([accountId, balance]) =>
+        prisma.accounts.update({
+          where: { id: accountId },
+          data: { balance },
+        }),
     );
 
     await prisma.$transaction(updatePromises);

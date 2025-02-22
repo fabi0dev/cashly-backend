@@ -19,6 +19,7 @@ model Users {
   expenses     Expenses[]
   transactions Transactions[]
   accounts     Accounts[]
+  category     Category[]
 
   @@map("users")
 }
@@ -43,7 +44,7 @@ model Expenses {
   user         Users                 @relation(fields: [userId], references: [id])
   installments ExpenseInstallments[]
 
-  Category Category? @relation(fields: [categoryId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
 
   @@map("expenses")
 }
@@ -81,7 +82,8 @@ model Transactions {
   date                 DateTime        @default(now())
   description          String?
   userId               String
-  accountId            String?
+  accountId            String
+  accountBalance       Float
   categoryId           String?
   paymentMethod        PaymentMethod?
   expenseInstallmentId String?
@@ -93,7 +95,7 @@ model Transactions {
   user               Users                @relation(fields: [userId], references: [id])
   account            Accounts?            @relation(fields: [accountId], references: [id])
   expenseInstallment ExpenseInstallments? @relation(fields: [expenseInstallmentId], references: [id])
-  Category           Category?            @relation(fields: [categoryId], references: [id])
+  category           Category?            @relation(fields: [categoryId], references: [id])
 
   @@map("transactions")
 }
@@ -112,19 +114,27 @@ enum PaymentMethod {
 }
 
 model Category {
-  id          String  @id @default(cuid())
-  name        String
-  isImportant Boolean @default(false)
-  isFavorite  Boolean @default(false)
+  id              String       @id @default(cuid())
+  name            String
+  importanceLevel Float        @default(1)
+  isFavorite      Boolean      @default(false)
+  userId          String
+  type            CategoryType
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  Expenses     Expenses[]
-  Transactions Transactions[]
+  expenses     Expenses[]
+  transactions Transactions[]
+  user         Users          @relation(fields: [userId], references: [id])
 
   @@map("categories")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
 }
 
 model Accounts {

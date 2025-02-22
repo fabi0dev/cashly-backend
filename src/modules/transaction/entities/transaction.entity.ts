@@ -8,15 +8,22 @@ export class TransactionEntity {
   description?: string;
   userId: string;
   accountId: string;
-  category?: string;
+  accountBalance: number;
+  categoryId: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
 
   account: Account;
+  category: Category;
 }
 
 type Account = {
+  id: string;
+  name: string;
+};
+
+type Category = {
   id: string;
   name: string;
 };

@@ -5,17 +5,21 @@ import { UpdateTransactionDTO } from './dto/update-transaction.dto';
 import { prisma } from 'src/services/prisma.service';
 import { TransactionEntity } from './entities/transaction.entity';
 import { PaginationDTO } from 'src/dto/pagination.dto';
+import { AccountRepository } from '../account/account.repository';
 
 @Injectable()
 export class TransactionRepository {
   static async create(
     userId: string,
-    createTransactionDTO: CreateTransactionDTO,
+    data: CreateTransactionDTO,
   ): Promise<TransactionEntity> {
+    const account = await AccountRepository.findOne(userId, data.accountId);
+
     return await prisma.transactions.create({
       data: {
         userId,
-        ...createTransactionDTO,
+        accountBalance: account.balance,
+        ...data,
       },
       include: TransactionRepository.commonIncludes,
     });
@@ -92,8 +96,8 @@ export class TransactionRepository {
     });
   }
 
-  static async remove(userId: string, id: string): Promise<TransactionEntity> {
-    return await prisma.transactions.update({
+  static async remove(userId: string, id: string): Promise<void> {
+    await prisma.transactions.update({
       where: {
         userId,
         id,
@@ -112,6 +116,13 @@ export class TransactionRepository {
 
   static commonIncludes = {
     account: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+
+    category: {
       select: {
         id: true,
         name: true,

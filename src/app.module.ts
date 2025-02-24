@@ -8,6 +8,7 @@ import { FinanceOverviewModule } from './modules/finance-overview/finance-overvi
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { AccountModule } from './modules/account/account.module';
 import { CategoryModule } from './modules/category/category.module';
+import { ReadExtractModule } from './modules/read-extract/read-extract.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CategoryModule } from './modules/category/category.module';
     TransactionModule,
     AccountModule,
     CategoryModule,
+    ReadExtractModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { AccountModule } from './modules/account/account.module';
 import { CategoryModule } from './modules/category/category.module';
 import { ReadExtractModule } from './modules/read-extract/read-extract.module';
+import { ExpenseInstallmentsModule } from './modules/expense-installments/expense-installments.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReadExtractModule } from './modules/read-extract/read-extract.module';
     AccountModule,
     CategoryModule,
     ReadExtractModule,
+    ExpenseInstallmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

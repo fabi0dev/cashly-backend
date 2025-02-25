@@ -1,5 +1,7 @@
 export class ExpenseInstallmentEntity {
   id: string;
+  description: string;
+  category: ExpenseInstallmentEntityCategory | null;
   expenseId: string;
   amount: number;
   dueDate: Date;
@@ -11,3 +13,8 @@ export class ExpenseInstallmentEntity {
   updatedAt: Date;
   deletedAt?: Date | null;
 }
+
+type ExpenseInstallmentEntityCategory = {
+  id: string;
+  name: string;
+};

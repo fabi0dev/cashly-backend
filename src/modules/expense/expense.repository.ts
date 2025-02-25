@@ -30,10 +30,12 @@ export class ExpenseRepository {
       },
     });
 
-    if (data.installments > 0) {
+    const installments = data.installments || 1;
+
+    if (installments > 0) {
       const installmentData: CreateExpenseInstallmentDTO[] = [];
 
-      for (let i = 0; i < data.installments; i++) {
+      for (let i = 0; i < installments; i++) {
         const dueDate = new Date(expense.date);
         dueDate.setMonth(dueDate.getMonth() + i);
 
@@ -42,7 +44,7 @@ export class ExpenseRepository {
           amount: data.amount,
           dueDate,
           installmentNumber: i + 1,
-          totalInstallments: data.installments,
+          totalInstallments: installments,
           isPaid: false,
         });
       }

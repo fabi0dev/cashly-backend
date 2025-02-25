@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateExpenseDTO } from './dto/create-expense.dto';
 import { ExpenseRepository } from './expense.repository';
 import { ExpenseMapper } from './mappers/expense.mapper';
@@ -20,7 +20,7 @@ export class ExpenseService {
   async getById(id: string) {
     const expenseEntity = await ExpenseRepository.findOne(id);
     if (!expenseEntity) {
-      throw new Error('Expense not found');
+      throw new NotFoundException('Expense not found');
     }
     return ExpenseMapper.toDTO(expenseEntity);
   }

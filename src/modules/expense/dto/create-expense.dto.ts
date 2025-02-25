@@ -52,6 +52,7 @@ export class CreateExpenseDTO {
   @Transform(({ value }) => (value ? new Date(value) : null))
   recurrenceEndDate?: Date;
 
+  @IsOptional()
   @IsNumber()
   @Transform(({ value }) => Number(value))
   installments?: number;

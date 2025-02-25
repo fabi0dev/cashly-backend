@@ -55,4 +55,16 @@ export class ExpenseController {
       pagination.limit,
     );
   }
+
+  @Get('-/installments')
+  findAllInstallments(
+    @JwtDecode() tokenData: JwtPayload,
+    @Query() pagination: ProhibitedPaginationDTO,
+  ) {
+    return this.expenseService.getAll(
+      tokenData.userId,
+      pagination.page,
+      pagination.limit,
+    );
+  }
 }

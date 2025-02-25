@@ -2,6 +2,9 @@ import { prisma } from 'src/services/prisma.service';
 import { CreateExpenseDTO } from './dto/create-expense.dto';
 import { ExpenseEntity } from './entities/expense.entity';
 import { PaginationDTO } from 'src/dto/pagination.dto';
+import { ExpenseMapper } from './mappers/expense.mapper';
+import { UpdateExpenseDTO } from './dto/update-expense.dto';
+import { CreateExpenseInstallmentDTO } from '../expense-installments/dto/create-expense-installment.dto';
 
 export class ExpenseRepository {
   constructor() {}
@@ -10,27 +13,83 @@ export class ExpenseRepository {
     userId: string,
     data: CreateExpenseDTO,
   ): Promise<ExpenseEntity> {
-    return await prisma.expenses.create({
-      data: {
-        userId,
-        ...data,
+    const expenseToInsert = ExpenseMapper.toCreateEntity({
+      ...data,
+      userId,
+    });
+
+    const expense = await prisma.expenses.create({
+      data: expenseToInsert,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
+
+    if (data.installments > 0) {
+      const installmentData: CreateExpenseInstallmentDTO[] = [];
+
+      for (let i = 0; i < data.installments; i++) {
+        const dueDate = new Date(expense.date);
+        dueDate.setMonth(dueDate.getMonth() + i);
+
+        installmentData.push({
+          expenseId: expense.id,
+          amount: data.amount,
+          dueDate,
+          installmentNumber: i + 1,
+          totalInstallments: data.installments,
+          isPaid: false,
+        });
+      }
+
+      await prisma.expenseInstallments.createMany({
+        data: installmentData,
+      });
+
+      console.log('Parcelas criadas');
+    }
+
+    return expense;
   }
 
   static async findOne(id: string): Promise<ExpenseEntity | null> {
     return await prisma.expenses.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
   static async update(
     id: string,
-    data: Partial<CreateExpenseDTO>,
+    data: Partial<UpdateExpenseDTO>,
   ): Promise<ExpenseEntity> {
+    const expense = ExpenseMapper.toUpdateEntity({
+      ...data,
+    });
+
     return await prisma.expenses.update({
       where: { id },
-      data,
+      data: expense,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
@@ -43,10 +102,23 @@ export class ExpenseRepository {
 
     const [data, totalItems] = await prisma.$transaction([
       prisma.expenses.findMany({
-        where: { userId },
+        where: { userId, deletedAt: null },
         skip,
         take: limit,
         orderBy: { date: 'desc' },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              installments: true,
+            },
+          },
+        },
       }),
 
       prisma.expenses.count({ where: { userId } }),
@@ -55,9 +127,21 @@ export class ExpenseRepository {
     const totalPages = Math.ceil(totalItems / limit);
 
     return {
-      data,
+      data: data.map((expense) => ({
+        ...expense,
+        installmentsCount: expense._count.installments,
+      })),
       totalItems,
       totalPages,
     };
+  }
+
+  static async delete(userId: string, id: string): Promise<void> {
+    await prisma.expenses.update({
+      where: { id, userId },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
   }
 }

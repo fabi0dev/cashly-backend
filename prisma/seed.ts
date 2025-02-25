@@ -13,7 +13,7 @@ async function main() {
     },
   });
 
-  const banks = ['Nubank', 'Itaú', 'Bradesco', 'Santander', 'Inter', 'Caixa'];
+  /*   const banks = ['Nubank', 'Itaú', 'Bradesco', 'Santander', 'Inter', 'Caixa'];
   const accounts = await Promise.all(
     banks.map((bank, index) =>
       prisma.accounts.create({
@@ -129,7 +129,7 @@ async function main() {
       });
     }
   }
-
+ */
   console.log('Seed criado com sucesso!');
 }
 

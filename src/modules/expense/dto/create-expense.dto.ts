@@ -19,9 +19,10 @@ export class CreateExpenseDTO {
   @IsString()
   categoryId?: string;
 
+  @IsOptional()
   @IsDate()
   @Transform(({ value }) => new Date(value))
-  date: Date;
+  date?: Date;
 
   @IsOptional()
   @IsDate()
@@ -50,4 +51,8 @@ export class CreateExpenseDTO {
   @IsDateString()
   @Transform(({ value }) => (value ? new Date(value) : null))
   recurrenceEndDate?: Date;
+
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  installments?: number;
 }

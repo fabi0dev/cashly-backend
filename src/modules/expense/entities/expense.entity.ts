@@ -3,7 +3,6 @@ import { RecurrenceType } from '@prisma/client';
 export class ExpenseEntity {
   id: string;
   amount: number;
-  category?: string;
   date: Date;
   dueDate?: Date;
   isPaid: boolean;
@@ -12,6 +11,14 @@ export class ExpenseEntity {
   isRecurring: boolean;
   recurrenceType?: RecurrenceType;
   recurrenceEndDate?: Date;
+
+  installmentsCount?: number;
+
+  category?: {
+    id: string;
+    name: string;
+  };
+
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

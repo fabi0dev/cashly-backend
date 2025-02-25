@@ -73,6 +73,9 @@ export class FinanceOverviewService {
         date: {
           gte: startDate,
         },
+        account: {
+          deletedAt: null,
+        },
       },
       include: {
         category: {

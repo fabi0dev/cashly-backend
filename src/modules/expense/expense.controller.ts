@@ -7,6 +7,7 @@ import {
   Get,
   Put,
   Query,
+  Delete,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -33,6 +34,14 @@ export class ExpenseController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() body: CreateExpenseDTO) {
     return this.expenseService.update(id, body);
+  }
+
+  @Delete(':id')
+  async delete(
+    @Param('id') id: string,
+    @JwtDecode() { userId }: JwtPayload,
+  ): Promise<void> {
+    return await this.expenseService.delete(userId, id);
   }
 
   @Get()

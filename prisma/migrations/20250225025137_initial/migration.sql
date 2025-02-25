@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "ExpenseStatus" AS ENUM ('ACTIVE', 'CANCELED', 'COMPLETED');
+
+-- CreateEnum
 CREATE TYPE "RecurrenceType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
 
 -- CreateEnum
@@ -31,14 +34,16 @@ CREATE TABLE "expenses" (
     "id" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "categoryId" TEXT,
-    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "date" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "dueDate" TIMESTAMP(3),
     "isPaid" BOOLEAN NOT NULL DEFAULT false,
     "description" TEXT,
     "userId" TEXT NOT NULL,
     "isRecurring" BOOLEAN NOT NULL DEFAULT false,
     "recurrenceType" "RecurrenceType",
+    "recurrenceStartDate" TIMESTAMP(3),
     "recurrenceEndDate" TIMESTAMP(3),
+    "status" "ExpenseStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),

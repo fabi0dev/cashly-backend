@@ -41,4 +41,8 @@ export class ExpenseService {
       data: paginatedExpenses.data.map(ExpenseMapper.toDTO),
     };
   }
+
+  async delete(userId: string, id: string): Promise<void> {
+    await ExpenseRepository.delete(userId, id);
+  }
 }

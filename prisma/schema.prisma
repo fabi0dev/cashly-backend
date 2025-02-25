@@ -25,17 +25,20 @@ model Users {
 }
 
 model Expenses {
-  id                String          @id @default(cuid())
-  amount            Float
-  categoryId        String?
-  date              DateTime        @default(now())
-  dueDate           DateTime?
-  isPaid            Boolean         @default(false)
-  description       String?
-  userId            String
-  isRecurring       Boolean         @default(false)
-  recurrenceType    RecurrenceType?
-  recurrenceEndDate DateTime?
+  id                  String          @id @default(cuid())
+  amount              Float
+  categoryId          String?
+  date                DateTime?       @default(now())
+  dueDate             DateTime?
+  isPaid              Boolean         @default(false)
+  description         String?
+  userId              String
+  isRecurring         Boolean         @default(false)
+  recurrenceType      RecurrenceType?
+  recurrenceStartDate DateTime?
+  recurrenceEndDate   DateTime?
+
+  status ExpenseStatus @default(ACTIVE)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -47,6 +50,12 @@ model Expenses {
   category Category? @relation(fields: [categoryId], references: [id])
 
   @@map("expenses")
+}
+
+enum ExpenseStatus {
+  ACTIVE
+  CANCELED
+  COMPLETED
 }
 
 enum RecurrenceType {

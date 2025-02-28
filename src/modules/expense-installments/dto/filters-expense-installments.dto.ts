@@ -7,6 +7,9 @@ export class FiltersExpenseInstallmentsDTO extends PartialType(
   ProhibitedPaginationDTO,
 ) {
   @IsOptional()
+  description?: string;
+
+  @IsOptional()
   @Transform(({ value }) => new Date(value))
   dueDateStart?: Date;
 

@@ -17,4 +17,16 @@ export class ExpenseDTO {
     id: string;
     name: string;
   };
+
+  installments?: ExpenseInstallmentDTO[];
+}
+
+export class ExpenseInstallmentDTO {
+  id: string;
+  amount: number;
+  dueDate: Date;
+  paymentDate?: Date | null;
+  installmentNumber: number;
+  totalInstallments: number;
+  isPaid: boolean;
 }

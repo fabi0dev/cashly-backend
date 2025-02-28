@@ -3,6 +3,7 @@ import { ExpenseInstallmentEntity } from './entities/expense-installment.entity'
 import { CreateExpenseInstallmentDTO } from './dto/create-expense-installment.dto';
 import { PaginationDTO } from 'src/dto/pagination.dto';
 import { FiltersExpenseInstallmentsDTO } from './dto/filters-expense-installments.dto';
+import { DateTime } from 'luxon';
 
 export class ExpenseInstallmentRepository {
   static async create(
@@ -66,16 +67,17 @@ export class ExpenseInstallmentRepository {
     const {
       page = 1,
       limit = 10,
-      dueDateStart,
-      dueDateEnd,
+      dueDateStart = DateTime.now().startOf('month').toJSDate(),
+      dueDateEnd = DateTime.now().endOf('month').toJSDate(),
       isPaid,
       status,
+      description,
     } = filters;
 
     const skip = (page - 1) * limit;
 
     const where: any = {
-      expense: { userId },
+      expense: { userId, deletedAt: null },
       deletedAt: null,
     };
 
@@ -86,12 +88,22 @@ export class ExpenseInstallmentRepository {
     }
 
     if (isPaid !== undefined) where.isPaid = isPaid;
+
     if (status) where.expense = { ...where.expense, status };
+    if (description) where.expense = { ...where.expense, description };
 
     const [data, totalItems] = await prisma.$transaction([
       prisma.expenseInstallments.findMany({
         where,
-        orderBy: { dueDate: 'asc' },
+        orderBy: [
+          { dueDate: 'asc' },
+          {
+            installmentNumber: 'asc',
+          },
+          {
+            isPaid: 'asc',
+          },
+        ],
         skip,
         take: limit,
         include: ExpenseInstallmentRepository.commonInclude,
@@ -99,7 +111,6 @@ export class ExpenseInstallmentRepository {
       prisma.expenseInstallments.count({ where }),
     ]);
 
-    console.log(data);
     return {
       data: data.map(ExpenseInstallmentRepository.mapEntityWithExpense),
       totalItems,

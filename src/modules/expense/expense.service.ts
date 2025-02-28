@@ -4,6 +4,7 @@ import { ExpenseRepository } from './expense.repository';
 import { ExpenseMapper } from './mappers/expense.mapper';
 import { PaginationDTO } from 'src/dto/pagination.dto';
 import { ExpenseDTO } from './dto/expense.dto';
+import { ExpenseInstallmentRepository } from '../expense-installments/expense-installments.repository';
 
 @Injectable()
 export class ExpenseService {
@@ -22,7 +23,16 @@ export class ExpenseService {
     if (!expenseEntity) {
       throw new NotFoundException('Expense not found');
     }
-    return ExpenseMapper.toDTO(expenseEntity);
+
+    const expenseInstallments =
+      await ExpenseInstallmentRepository.findAllByExpense(expenseEntity.id);
+
+    return {
+      ...ExpenseMapper.toDTO(expenseEntity),
+      installments: expenseInstallments.map(
+        ExpenseMapper.expenseInstallmentsToDTO,
+      ),
+    };
   }
 
   async getAll(

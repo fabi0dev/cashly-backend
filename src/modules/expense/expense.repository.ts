@@ -36,7 +36,7 @@ export class ExpenseRepository {
       const installmentData: CreateExpenseInstallmentDTO[] = [];
 
       for (let i = 0; i < installments; i++) {
-        const dueDate = new Date(expense.date);
+        const dueDate = new Date(expense.dueDate);
         dueDate.setMonth(dueDate.getMonth() + i);
 
         installmentData.push({
@@ -52,8 +52,6 @@ export class ExpenseRepository {
       await prisma.expenseInstallments.createMany({
         data: installmentData,
       });
-
-      console.log('Parcelas criadas');
     }
 
     return expense;

@@ -5,6 +5,8 @@ import { PaginationDTO } from 'src/dto/pagination.dto';
 import { ExpenseMapper } from './mappers/expense.mapper';
 import { UpdateExpenseDTO } from './dto/update-expense.dto';
 import { CreateExpenseInstallmentDTO } from '../expense-installments/dto/create-expense-installment.dto';
+import { TransactionRepository } from '../transaction/transaction.repository';
+import { AccountRepository } from '../account/account.repository';
 
 export class ExpenseRepository {
   constructor() {}
@@ -35,6 +37,8 @@ export class ExpenseRepository {
     if (installments > 0) {
       const installmentData: CreateExpenseInstallmentDTO[] = [];
 
+      const accountDefault = await AccountRepository.findDefault(userId);
+
       for (let i = 0; i < installments; i++) {
         const dueDate = new Date(expense.dueDate);
         dueDate.setMonth(dueDate.getMonth() + i);
@@ -45,8 +49,19 @@ export class ExpenseRepository {
           dueDate,
           installmentNumber: i + 1,
           totalInstallments: installments,
-          isPaid: false,
+          isPaid: data.isPaid,
         });
+
+        if (data.isPaid) {
+          await TransactionRepository.create(userId, {
+            date: expense.dueDate,
+            amount: data.amount,
+            description: expense.description,
+            accountId: accountDefault.id,
+            type: 'EXIT',
+            categoryId: expense.categoryId,
+          });
+        }
       }
 
       await prisma.expenseInstallments.createMany({

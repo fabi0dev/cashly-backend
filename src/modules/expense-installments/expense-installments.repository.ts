@@ -96,12 +96,12 @@ export class ExpenseInstallmentRepository {
       prisma.expenseInstallments.findMany({
         where,
         orderBy: [
+          {
+            isPaid: 'asc',
+          },
           { dueDate: 'asc' },
           {
             installmentNumber: 'asc',
-          },
-          {
-            isPaid: 'asc',
           },
         ],
         skip,

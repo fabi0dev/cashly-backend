@@ -61,6 +61,12 @@ export class AccountRepository {
     });
   }
 
+  static async findDefault(userId: string): Promise<AccountEntity> {
+    return await prisma.accounts.findFirst({
+      where: { userId, isDefault: true, deletedAt: null },
+    });
+  }
+
   static async update(
     userId: string,
     id: string,

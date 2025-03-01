@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -15,6 +16,7 @@ import { CreateExpenseDTO } from './dto/create-expense.dto';
 import { JwtPayload } from 'src/types/jwt-payload';
 import { JwtDecode } from 'src/decorators/jwt-decoded.decorator';
 import { ProhibitedPaginationDTO } from 'src/dto/pagination-prohibited.dto';
+import { ExpenseMarkPaidDTO } from './dto/expense-mark-paid.dto';
 
 @Controller('expense')
 @UseGuards(AuthGuard)
@@ -66,5 +68,14 @@ export class ExpenseController {
       pagination.page,
       pagination.limit,
     );
+  }
+
+  @Patch('mark-paid/:expenseId')
+  async markPaid(
+    @Param('expenseId') expenseId: string,
+    @JwtDecode() { userId }: JwtPayload,
+    @Body() body: ExpenseMarkPaidDTO,
+  ) {
+    return this.expenseService.markAsPaid(userId, expenseId, body);
   }
 }

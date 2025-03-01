@@ -5,6 +5,9 @@ import { ExpenseMapper } from './mappers/expense.mapper';
 import { PaginationDTO } from 'src/dto/pagination.dto';
 import { ExpenseDTO } from './dto/expense.dto';
 import { ExpenseInstallmentRepository } from '../expense-installments/expense-installments.repository';
+import { TransactionRepository } from '../transaction/transaction.repository';
+import { AccountRepository } from '../account/account.repository';
+import { ExpenseMarkPaidDTO } from './dto/expense-mark-paid.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -54,5 +57,32 @@ export class ExpenseService {
 
   async delete(userId: string, id: string): Promise<void> {
     await ExpenseRepository.delete(userId, id);
+  }
+
+  async markAsPaid(
+    userId: string,
+    expenseId: string,
+    data: ExpenseMarkPaidDTO,
+  ): Promise<void> {
+    const expense = await ExpenseRepository.findOne(expenseId);
+
+    if (!expense) {
+      throw new NotFoundException('Expense not found');
+    }
+
+    await ExpenseRepository.update(expense.id, {
+      isPaid: true,
+    });
+
+    const accountId = await AccountRepository.findDefault(userId);
+
+    await TransactionRepository.create(userId, {
+      accountId: accountId.id,
+      amount: expense.amount,
+      description: expense.description,
+      type: 'EXIT',
+      categoryId: expense.category.id,
+      date: data.paymentDate,
+    });
   }
 }

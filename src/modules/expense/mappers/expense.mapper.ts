@@ -4,6 +4,7 @@ import { ExpenseDTO, ExpenseInstallmentDTO } from '../dto/expense.dto';
 import { ExpenseEntity } from '../entities/expense.entity';
 import { UpdateExpenseDTO } from '../dto/update-expense.dto';
 import { ExpenseInstallmentEntity } from 'src/modules/expense-installments/entities/expense-installment.entity';
+import { formatDateUTCToISO } from 'src/utils/date';
 
 export class ExpenseMapper {
   static toDTO(entity: ExpenseEntity): ExpenseDTO {
@@ -34,7 +35,9 @@ export class ExpenseMapper {
       id: entity.id,
       amount: entity.amount,
       dueDate: entity.dueDate,
-      paymentDate: entity.paymentDate ?? null,
+      paymentDate: entity.paymentDate
+        ? formatDateUTCToISO(entity.paymentDate.toISOString())
+        : null,
       installmentNumber: entity.installmentNumber,
       totalInstallments: entity.totalInstallments,
       isPaid: entity.isPaid,

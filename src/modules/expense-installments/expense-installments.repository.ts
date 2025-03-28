@@ -37,6 +37,20 @@ export class ExpenseInstallmentRepository {
     );
   }
 
+  static async findNoPaidByExpenseId(
+    expenseId: string,
+  ): Promise<ExpenseInstallmentEntity[]> {
+    const expenseInstallments = await prisma.expenseInstallments.findMany({
+      where: { expenseId, deletedAt: null, isPaid: false },
+      include: ExpenseInstallmentRepository.commonInclude,
+      orderBy: { installmentNumber: 'asc' },
+    });
+
+    return expenseInstallments.map(
+      ExpenseInstallmentRepository.mapEntityWithExpense,
+    );
+  }
+
   static async findOne(id: string): Promise<ExpenseInstallmentEntity | null> {
     const installment = await prisma.expenseInstallments.findUnique({
       where: { id, deletedAt: null },
@@ -72,6 +86,7 @@ export class ExpenseInstallmentRepository {
       isPaid,
       status,
       description,
+      categoryId,
     } = filters;
 
     const skip = (page - 1) * limit;
@@ -90,7 +105,17 @@ export class ExpenseInstallmentRepository {
     if (isPaid !== undefined) where.isPaid = isPaid;
 
     if (status) where.expense = { ...where.expense, status };
-    if (description) where.expense = { ...where.expense, description };
+
+    if (description)
+      where.expense = {
+        ...where.expense,
+        description: {
+          contains: description,
+          mode: 'insensitive',
+        },
+      };
+
+    if (categoryId) where.expense = { ...where.expense, categoryId };
 
     const [data, totalItems] = await prisma.$transaction([
       prisma.expenseInstallments.findMany({
@@ -129,6 +154,16 @@ export class ExpenseInstallmentRepository {
     });
 
     return ExpenseInstallmentRepository.mapEntityWithExpense(expense);
+  }
+
+  static async updateByExpenseId(
+    expenseId: string,
+    data: Partial<CreateExpenseInstallmentDTO>,
+  ) {
+    return await prisma.expenseInstallments.updateMany({
+      where: { expenseId },
+      data,
+    });
   }
 
   static async delete(id: string): Promise<void> {

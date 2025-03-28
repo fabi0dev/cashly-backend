@@ -84,5 +84,51 @@ export class ExpenseService {
       categoryId: expense.category.id,
       date: data.paymentDate,
     });
+
+    await ExpenseInstallmentRepository.updateByExpenseId(expense.id, {
+      isPaid: true,
+      paymentDate: data.paymentDate,
+    });
+  }
+
+  async markInstallmentAsPaid(
+    userId: string,
+    installmentId: string,
+    data: ExpenseMarkPaidDTO,
+  ): Promise<void> {
+    const installment =
+      await ExpenseInstallmentRepository.findOne(installmentId);
+
+    if (!installment) {
+      throw new NotFoundException('Expense not found');
+    }
+
+    const expense = await ExpenseRepository.findOne(installment.expenseId);
+
+    //create transaction
+    await TransactionRepository.create(userId, {
+      accountId: data.accountId,
+      amount: expense.amount,
+      description: expense.description,
+      type: 'EXIT',
+      categoryId: expense.category.id,
+      date: data.paymentDate,
+    });
+
+    //update installment
+    await ExpenseInstallmentRepository.update(installment.id, {
+      isPaid: true,
+      paymentDate: data.paymentDate,
+    });
+
+    //check if all installments are paid
+    const installments =
+      await ExpenseInstallmentRepository.findNoPaidByExpenseId(expense.id);
+
+    if (installments.length === 0) {
+      await ExpenseRepository.update(expense.id, {
+        isPaid: true,
+      });
+    }
   }
 }

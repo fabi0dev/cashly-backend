@@ -23,4 +23,7 @@ export class FiltersExpenseInstallmentsDTO extends PartialType(
 
   @IsOptional()
   status?: string;
+
+  @IsOptional()
+  categoryId?: string;
 }

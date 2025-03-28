@@ -78,4 +78,13 @@ export class ExpenseController {
   ) {
     return this.expenseService.markAsPaid(userId, expenseId, body);
   }
+
+  @Patch('installment/mark-paid/:expenseId')
+  async markInstallmentPaid(
+    @Param('expenseId') expenseId: string,
+    @JwtDecode() { userId }: JwtPayload,
+    @Body() body: ExpenseMarkPaidDTO,
+  ) {
+    return this.expenseService.markInstallmentAsPaid(userId, expenseId, body);
+  }
 }

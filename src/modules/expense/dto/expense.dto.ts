@@ -25,7 +25,7 @@ export class ExpenseInstallmentDTO {
   id: string;
   amount: number;
   dueDate: Date;
-  paymentDate?: Date | null;
+  paymentDate?: string | null;
   installmentNumber: number;
   totalInstallments: number;
   isPaid: boolean;

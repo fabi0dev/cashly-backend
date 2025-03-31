@@ -28,6 +28,12 @@ export class UserController {
     return await this.userService.auth(body);
   }
 
+  @Post('auth/google')
+  @UsePipes(new ValidationPipe())
+  async googleAuth(@Body('token') token: string) {
+    return this.userService.validateGoogleToken(token);
+  }
+
   @Post('/register')
   @UsePipes(new ValidationPipe())
   async createUser(@Body() body: CreateUserDTO): Promise<UserAuthDTO> {

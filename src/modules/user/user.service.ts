@@ -14,9 +14,12 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UpdateProfileUserDTO } from './dto/update-profile-user.dto';
 import { UserDTO } from './dto/user.dto';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class UserService {
+  private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
   constructor(private readonly jwtService: JwtService) {}
 
   generateToken(user: UserEntity): string {
@@ -45,6 +48,45 @@ export class UserService {
       token,
       user: UserMapper.entityToDTO(userEntity),
     };
+  }
+
+  async validateGoogleToken(token: string) {
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+
+      if (!payload) throw new Error('Invalid Google Token');
+
+      const userSelf = await UserRepository.getUserByEmail(payload.email);
+
+      if (userSelf) {
+        const token = this.generateToken(userSelf);
+
+        const updatedUser = await UserRepository.updateUser(userSelf.id, {
+          name: payload.name,
+          email: payload.email,
+          picture: payload.picture,
+        });
+
+        return {
+          token,
+          user: UserMapper.entityToDTO(updatedUser),
+        };
+      } else {
+        return await this.createUser({
+          name: payload.name,
+          email: payload.email,
+          picture: payload.picture || null,
+          password: null,
+        });
+      }
+    } catch (error) {
+      throw new Error('Google authentication failed');
+    }
   }
 
   async createUser(body: CreateUserDTO): Promise<UserAuthDTO> {

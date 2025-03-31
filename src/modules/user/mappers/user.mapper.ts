@@ -7,6 +7,7 @@ export class UserMapper {
       id: entity.id,
       name: entity.name,
       email: entity.email,
+      picture: entity.picture || null,
     };
   }
 }

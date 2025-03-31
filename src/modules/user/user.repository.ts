@@ -58,6 +58,18 @@ export class UserRepository {
     return user;
   }
 
+  static async updateUser(
+    id: string,
+    data: Partial<UserEntity>,
+  ): Promise<UserEntity> {
+    const updatedUser = await prisma.users.update({
+      where: { id },
+      data,
+    });
+
+    return updatedUser;
+  }
+
   static async updateProfile(
     id: string,
     data: Partial<UpdateProfileUserDTO>,

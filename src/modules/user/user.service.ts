@@ -81,10 +81,11 @@ export class UserService {
           name: payload.name,
           email: payload.email,
           picture: payload.picture || null,
-          password: null,
+          password: payload.exp.toString(),
         });
       }
     } catch (error) {
+      console.log(error);
       throw new Error('Google authentication failed');
     }
   }
@@ -98,7 +99,9 @@ export class UserService {
 
     const userCreated = await UserRepository.createUser({
       ...body,
-      password: HashService.generatePassword(body.password, body.email),
+      password: body.password
+        ? HashService.generatePassword(body.password, body.email)
+        : HashService.generateRandomHash(),
     });
 
     const token = this.generateToken(userCreated);

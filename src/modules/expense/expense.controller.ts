@@ -5,7 +5,6 @@ import {
   UseGuards,
   Param,
   Get,
-  Put,
   Query,
   Delete,
   Patch,
@@ -17,6 +16,7 @@ import { JwtPayload } from 'src/types/jwt-payload';
 import { JwtDecode } from 'src/decorators/jwt-decoded.decorator';
 import { ProhibitedPaginationDTO } from 'src/dto/pagination-prohibited.dto';
 import { ExpenseMarkPaidDTO } from './dto/expense-mark-paid.dto';
+import { UpdateExpenseDTO } from './dto/update-expense.dto';
 
 @Controller('expense')
 @UseGuards(AuthGuard)
@@ -33,8 +33,8 @@ export class ExpenseController {
     return this.expenseService.getById(id);
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() body: CreateExpenseDTO) {
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() body: UpdateExpenseDTO) {
     return this.expenseService.update(id, body);
   }
 

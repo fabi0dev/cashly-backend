@@ -62,6 +62,7 @@ export class ExpenseRepository {
             accountId: accountDefault.id,
             type: 'EXIT',
             categoryId: expense.categoryId,
+            expenseId: expense.id,
           });
         }
       }
@@ -92,13 +93,11 @@ export class ExpenseRepository {
     id: string,
     data: Partial<UpdateExpenseDTO>,
   ): Promise<ExpenseEntity> {
-    const expense = ExpenseMapper.toUpdateEntity({
-      ...data,
-    });
-
     return await prisma.expenses.update({
       where: { id },
-      data: expense,
+      data: {
+        description: data.description,
+      },
       include: {
         category: {
           select: {

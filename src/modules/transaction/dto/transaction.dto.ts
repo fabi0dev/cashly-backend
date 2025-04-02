@@ -10,6 +10,7 @@ export class TransactionDTO {
   accountId: string;
   accountBalance: number;
   categoryId: string;
+  expenseId?: string;
 
   account: Account;
   category: Category;

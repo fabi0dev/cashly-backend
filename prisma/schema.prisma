@@ -48,7 +48,8 @@ model Expenses {
   user         Users                 @relation(fields: [userId], references: [id])
   installments ExpenseInstallments[]
 
-  category Category? @relation(fields: [categoryId], references: [id])
+  category     Category?      @relation(fields: [categoryId], references: [id])
+  Transactions Transactions[]
 
   @@map("expenses")
 }
@@ -97,6 +98,7 @@ model Transactions {
   categoryId           String?
   paymentMethod        PaymentMethod?
   expenseInstallmentId String?
+  expenseId            String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -106,6 +108,7 @@ model Transactions {
   account            Accounts?            @relation(fields: [accountId], references: [id])
   expenseInstallment ExpenseInstallments? @relation(fields: [expenseInstallmentId], references: [id])
   category           Category?            @relation(fields: [categoryId], references: [id])
+  expense            Expenses?            @relation(fields: [expenseId], references: [id])
 
   @@map("transactions")
 }

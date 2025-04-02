@@ -3,14 +3,14 @@ import { RecurrenceType } from '@prisma/client';
 export class ExpenseDTO {
   id: string;
   amount: number;
-  date: Date;
-  dueDate?: Date;
+  date: string;
+  dueDate?: string;
   isPaid: boolean;
   description?: string;
   userId: string;
   isRecurring: boolean;
   recurrenceType?: RecurrenceType;
-  recurrenceEndDate?: Date;
+  recurrenceEndDate?: string;
 
   installmentsCount?: number;
   category: {
@@ -24,7 +24,7 @@ export class ExpenseDTO {
 export class ExpenseInstallmentDTO {
   id: string;
   amount: number;
-  dueDate: Date;
+  dueDate: string;
   paymentDate?: string | null;
   installmentNumber: number;
   totalInstallments: number;

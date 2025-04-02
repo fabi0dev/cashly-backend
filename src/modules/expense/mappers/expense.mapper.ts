@@ -14,13 +14,17 @@ export class ExpenseMapper {
       id: entity.id,
       userId: entity.userId,
       amount: entity.amount,
-      date: entity.date,
-      dueDate: entity.dueDate,
+      date: entity.date ? formatDateUTCToISO(entity.date.toISOString()) : null,
+      dueDate: entity.dueDate
+        ? formatDateUTCToISO(entity.dueDate.toISOString())
+        : null,
       isPaid: entity.isPaid,
       description: entity.description,
       isRecurring: entity.isRecurring,
       recurrenceType: entity.recurrenceType,
-      recurrenceEndDate: entity.recurrenceEndDate,
+      recurrenceEndDate: entity.recurrenceEndDate
+        ? formatDateUTCToISO(entity.recurrenceEndDate.toISOString())
+        : null,
 
       installmentsCount: entity.installmentsCount,
 
@@ -34,7 +38,9 @@ export class ExpenseMapper {
     return {
       id: entity.id,
       amount: entity.amount,
-      dueDate: entity.dueDate,
+      dueDate: entity.dueDate
+        ? formatDateUTCToISO(entity.dueDate.toISOString())
+        : null,
       paymentDate: entity.paymentDate
         ? formatDateUTCToISO(entity.paymentDate.toISOString())
         : null,

@@ -10,6 +10,7 @@ export class TransactionEntity {
   accountId: string;
   accountBalance: number;
   categoryId: string;
+  expenseId?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

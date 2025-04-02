@@ -29,6 +29,9 @@ export class CreateTransactionDTO {
   @IsString()
   categoryId: string;
 
+  @IsString()
+  expenseId?: string;
+
   @IsOptional()
   @IsEnum(PaymentMethod)
   paymentMethod?: PaymentMethod;

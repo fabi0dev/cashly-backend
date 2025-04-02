@@ -14,6 +14,7 @@ export class TransactionMapper {
       accountId,
       accountBalance,
       categoryId,
+      expenseId,
 
       account,
       category,
@@ -29,6 +30,7 @@ export class TransactionMapper {
       accountId,
       accountBalance,
       categoryId,
+      expenseId,
 
       category,
       account,

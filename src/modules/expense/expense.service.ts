@@ -8,6 +8,7 @@ import { ExpenseInstallmentRepository } from '../expense-installments/expense-in
 import { TransactionRepository } from '../transaction/transaction.repository';
 import { AccountRepository } from '../account/account.repository';
 import { ExpenseMarkPaidDTO } from './dto/expense-mark-paid.dto';
+import { UpdateExpenseDTO } from './dto/update-expense.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -16,7 +17,7 @@ export class ExpenseService {
     return ExpenseMapper.toDTO(expenseEntity);
   }
 
-  async update(id: string, body: CreateExpenseDTO) {
+  async update(id: string, body: UpdateExpenseDTO) {
     const expenseEntity = await ExpenseRepository.update(id, body);
     return ExpenseMapper.toDTO(expenseEntity);
   }
@@ -83,6 +84,7 @@ export class ExpenseService {
       type: 'EXIT',
       categoryId: expense.category.id,
       date: data.paymentDate,
+      expenseId: expense.id,
     });
 
     await ExpenseInstallmentRepository.updateByExpenseId(expense.id, {
@@ -113,6 +115,7 @@ export class ExpenseService {
       type: 'EXIT',
       categoryId: expense.category.id,
       date: data.paymentDate,
+      expenseId: expense.id,
     });
 
     //update installment

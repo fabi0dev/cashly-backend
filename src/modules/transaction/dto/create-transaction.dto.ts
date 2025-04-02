@@ -29,6 +29,7 @@ export class CreateTransactionDTO {
   @IsString()
   categoryId: string;
 
+  @IsOptional()
   @IsString()
   expenseId?: string;
 

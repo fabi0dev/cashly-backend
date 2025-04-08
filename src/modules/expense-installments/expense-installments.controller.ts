@@ -12,9 +12,9 @@ export class ExpenseInstallmentsController {
 
   @Get()
   findAllInstallments(
-    @JwtDecode() tokenData: JwtPayload,
+    @JwtDecode() { userId }: JwtPayload,
     @Query() filters: FiltersExpenseInstallmentsDTO,
   ) {
-    return this.expenseService.getAll(tokenData.userId, filters);
+    return this.expenseService.getAll(userId, filters);
   }
 }

@@ -15,12 +15,10 @@ export class ExpenseInstallmentRepository {
         ...data,
         expenseId,
       },
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
     });
 
-    return ExpenseInstallmentRepository.mapEntityWithExpense(
-      expenseInstallments,
-    );
+    return this.mapEntityWithExpense(expenseInstallments);
   }
 
   static async findByExpenseId(
@@ -28,13 +26,11 @@ export class ExpenseInstallmentRepository {
   ): Promise<ExpenseInstallmentEntity[]> {
     const expenseInstallments = await prisma.expenseInstallments.findMany({
       where: { expenseId, deletedAt: null },
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
       orderBy: { installmentNumber: 'asc' },
     });
 
-    return expenseInstallments.map(
-      ExpenseInstallmentRepository.mapEntityWithExpense,
-    );
+    return expenseInstallments.map(this.mapEntityWithExpense);
   }
 
   static async findNoPaidByExpenseId(
@@ -42,24 +38,22 @@ export class ExpenseInstallmentRepository {
   ): Promise<ExpenseInstallmentEntity[]> {
     const expenseInstallments = await prisma.expenseInstallments.findMany({
       where: { expenseId, deletedAt: null, isPaid: false },
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
       orderBy: { installmentNumber: 'asc' },
     });
 
-    return expenseInstallments.map(
-      ExpenseInstallmentRepository.mapEntityWithExpense,
-    );
+    return expenseInstallments.map(this.mapEntityWithExpense);
   }
 
   static async findOne(id: string): Promise<ExpenseInstallmentEntity | null> {
     const installment = await prisma.expenseInstallments.findUnique({
       where: { id, deletedAt: null },
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
     });
 
     if (!installment) return null;
 
-    return ExpenseInstallmentRepository.mapEntityWithExpense(installment);
+    return this.mapEntityWithExpense(installment);
   }
 
   static async findAllByExpense(
@@ -67,11 +61,11 @@ export class ExpenseInstallmentRepository {
   ): Promise<ExpenseInstallmentEntity[]> {
     const expense = await prisma.expenseInstallments.findMany({
       where: { expenseId, deletedAt: null },
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
       orderBy: { dueDate: 'asc' },
     });
 
-    return expense.map(ExpenseInstallmentRepository.mapEntityWithExpense);
+    return expense.map(this.mapEntityWithExpense);
   }
 
   static async findAll(
@@ -131,13 +125,13 @@ export class ExpenseInstallmentRepository {
         ],
         skip,
         take: limit,
-        include: ExpenseInstallmentRepository.commonInclude,
+        include: this.commonInclude,
       }),
       prisma.expenseInstallments.count({ where }),
     ]);
 
     return {
-      data: data.map(ExpenseInstallmentRepository.mapEntityWithExpense),
+      data: data.map(this.mapEntityWithExpense),
       totalItems,
       totalPages: Math.ceil(totalItems / limit),
     };
@@ -150,10 +144,10 @@ export class ExpenseInstallmentRepository {
     const expense = await prisma.expenseInstallments.update({
       where: { id },
       data,
-      include: ExpenseInstallmentRepository.commonInclude,
+      include: this.commonInclude,
     });
 
-    return ExpenseInstallmentRepository.mapEntityWithExpense(expense);
+    return this.mapEntityWithExpense(expense);
   }
 
   static async updateByExpenseId(
@@ -173,7 +167,7 @@ export class ExpenseInstallmentRepository {
     });
   }
 
-  static commonInclude = {
+  private static commonInclude = {
     expense: {
       select: {
         id: true,
@@ -188,7 +182,7 @@ export class ExpenseInstallmentRepository {
     },
   };
 
-  static mapEntityWithExpense(entity: any): ExpenseInstallmentEntity {
+  private static mapEntityWithExpense(entity: any): ExpenseInstallmentEntity {
     return {
       ...entity,
       description: entity.expense.description,

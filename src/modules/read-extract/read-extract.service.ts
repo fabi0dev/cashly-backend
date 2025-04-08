@@ -65,7 +65,7 @@ export class ReadExtractService {
         description = description.replace(valueMatch[0], '').trim();
         description = description
           .replace(/R\$\s?-?[\d]{1,3}(\.?\d{3})*(,\d{2})?/g, '')
-          .trim(); // Remove valores duplicados
+          .trim();
         description = description.replace(/[-]+/g, '').trim();
 
         console.log({ date: currentDate, description, value, type });

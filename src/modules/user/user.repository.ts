@@ -7,37 +7,25 @@ import { UpdateProfileUserDTO } from './dto/update-profile-user.dto';
 
 export class UserRepository {
   static async auth({ email, password }: AuthUserDTO): Promise<UserEntity> {
-    const entity = await prisma.users.findFirst({
+    return await prisma.users.findFirst({
       where: {
-        AND: [
-          {
-            email,
-          },
-          {
-            password,
-          },
-        ],
+        email,
+        password,
         deletedAt: null,
       },
     });
-
-    return entity;
   }
 
   static async getUserById(id: string): Promise<UserEntity> {
-    const user = await prisma.users.findUnique({
+    return await prisma.users.findFirst({
       where: { id, deletedAt: null },
     });
-
-    return user;
   }
 
   static async getUserByEmail(email: string): Promise<UserEntity> {
-    const user = await prisma.users.findUnique({
+    return await prisma.users.findFirst({
       where: { email, deletedAt: null },
     });
-
-    return user;
   }
 
   static async createUser({
@@ -45,52 +33,44 @@ export class UserRepository {
     email,
     password,
   }: CreateUserDTO): Promise<UserEntity> {
-    const user = await prisma.users.create({
+    return await prisma.users.create({
       data: {
         name,
         email,
         password,
       },
     });
-
-    return user;
   }
 
   static async updateUser(
     id: string,
     data: Partial<UserEntity>,
   ): Promise<UserEntity> {
-    const updatedUser = await prisma.users.update({
+    return await prisma.users.update({
       where: { id },
       data,
     });
-
-    return updatedUser;
   }
 
   static async updateProfile(
     id: string,
     data: Partial<UpdateProfileUserDTO>,
   ): Promise<UserEntity> {
-    const updatedUser = await prisma.users.update({
+    return await prisma.users.update({
       where: { id },
       data,
     });
-
-    return updatedUser;
   }
 
   static async updatePassword(
     userId: string,
     { password }: UpdatePasswordDTO,
   ): Promise<UserEntity> {
-    const updatedUser = await prisma.users.update({
+    return await prisma.users.update({
       where: { id: userId },
       data: {
         password,
       },
     });
-
-    return updatedUser;
   }
 }

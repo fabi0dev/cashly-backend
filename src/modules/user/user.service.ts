@@ -23,15 +23,11 @@ export class UserService {
   constructor(private readonly jwtService: JwtService) {}
 
   generateToken(user: UserEntity): string {
-    const payload = {
+    return this.jwtService.sign({
       email: user.email,
       userId: user.id,
-    };
-
-    const token = this.jwtService.sign(payload);
-    return token;
+    });
   }
-
   async auth(body: AuthUserDTO): Promise<UserAuthDTO> {
     const userEntity = await UserRepository.auth({
       email: body.email,
@@ -42,15 +38,13 @@ export class UserService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const token = this.generateToken(userEntity);
-
     return {
-      token,
+      token: this.generateToken(userEntity),
       user: UserMapper.entityToDTO(userEntity),
     };
   }
 
-  async validateGoogleToken(token: string) {
+  async validateGoogleToken(token: string): Promise<UserAuthDTO> {
     try {
       const ticket = await this.googleClient.verifyIdToken({
         idToken: token,
@@ -58,44 +52,38 @@ export class UserService {
       });
 
       const payload = ticket.getPayload();
-
       if (!payload) throw new Error('Invalid Google Token');
 
-      const userSelf = await UserRepository.getUserByEmail(payload.email);
+      const existingUser = await UserRepository.getUserByEmail(payload.email);
 
-      if (userSelf) {
-        const token = this.generateToken(userSelf);
-
-        const updatedUser = await UserRepository.updateUser(userSelf.id, {
+      if (existingUser) {
+        const updatedUser = await UserRepository.updateUser(existingUser.id, {
           name: payload.name,
           email: payload.email,
           picture: payload.picture,
         });
 
         return {
-          token,
+          token: this.generateToken(updatedUser),
           user: UserMapper.entityToDTO(updatedUser),
         };
-      } else {
-        return await this.createUser({
-          name: payload.name,
-          email: payload.email,
-          picture: payload.picture || null,
-          password: payload.exp.toString(),
-        });
       }
-    } catch (error) {
-      console.log(error);
+
+      return this.createUser({
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture || null,
+        password: payload.exp.toString(),
+      });
+    } catch (err) {
+      console.error(err);
       throw new Error('Google authentication failed');
     }
   }
 
   async createUser(body: CreateUserDTO): Promise<UserAuthDTO> {
-    const user = await UserRepository.getUserByEmail(body.email);
-
-    if (user) {
-      throw new ConflictException('User already exists');
-    }
+    const exists = await UserRepository.getUserByEmail(body.email);
+    if (exists) throw new ConflictException('User already exists');
 
     const userCreated = await UserRepository.createUser({
       ...body,
@@ -104,23 +92,18 @@ export class UserService {
         : HashService.generateRandomHash(),
     });
 
-    const token = this.generateToken(userCreated);
-
     return {
-      token,
+      token: this.generateToken(userCreated),
       user: UserMapper.entityToDTO(userCreated),
     };
   }
 
   async updatePassword(userId: string, newPassword: string): Promise<void> {
-    const userEntity = await UserRepository.getUserById(userId);
-
-    if (!userEntity) {
-      throw new NotFoundException('User not found');
-    }
+    const user = await UserRepository.getUserById(userId);
+    if (!user) throw new NotFoundException('User not found');
 
     await UserRepository.updatePassword(userId, {
-      password: HashService.generatePassword(newPassword, userEntity.email),
+      password: HashService.generatePassword(newPassword, user.email),
     });
   }
 
@@ -128,13 +111,10 @@ export class UserService {
     userId: string,
     data: UpdateProfileUserDTO,
   ): Promise<UserDTO> {
-    const userEntity = await UserRepository.getUserById(userId);
+    const user = await UserRepository.getUserById(userId);
+    if (!user) throw new NotFoundException('User not found');
 
-    if (!userEntity) {
-      throw new NotFoundException('User not found');
-    }
-
-    const user = await UserRepository.updateProfile(userId, data);
-    return UserMapper.entityToDTO(user);
+    const updated = await UserRepository.updateProfile(userId, data);
+    return UserMapper.entityToDTO(updated);
   }
 }

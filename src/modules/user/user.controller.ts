@@ -30,7 +30,7 @@ export class UserController {
 
   @Post('auth/google')
   @UsePipes(new ValidationPipe())
-  async googleAuth(@Body('token') token: string) {
+  async googleAuth(@Body('token') token: string): Promise<UserAuthDTO> {
     return this.userService.validateGoogleToken(token);
   }
 
@@ -40,8 +40,8 @@ export class UserController {
     return await this.userService.createUser(body);
   }
 
-  @UseGuards(AuthGuard)
   @Patch('profile')
+  @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())
   async updateProfile(
     @JwtDecode() { userId }: JwtPayload,
@@ -50,8 +50,8 @@ export class UserController {
     return await this.userService.updateProfile(userId, body);
   }
 
-  @UseGuards(AuthGuard)
   @Patch('password')
+  @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())
   async updatePassword(
     @JwtDecode() { userId }: JwtPayload,

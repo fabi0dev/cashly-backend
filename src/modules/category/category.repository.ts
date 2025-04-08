@@ -11,7 +11,7 @@ export class CategoryRepository {
     userId: string,
     data: CreateCategoryDTO,
   ): Promise<CategoryEntity> {
-    return await prisma.category.create({
+    return prisma.category.create({
       data: {
         ...data,
         userId,
@@ -24,41 +24,33 @@ export class CategoryRepository {
     userId: string,
     data: UpdateCategoryDTO,
   ): Promise<CategoryEntity> {
-    return await prisma.category.update({
+    return prisma.category.update({
       where: { id, userId, deletedAt: null },
       data,
     });
   }
 
-  static async findAll(userId: string): Promise<CategoryEntity[]> {
-    return await prisma.category.findMany({
+  static findAll(userId: string): Promise<CategoryEntity[]> {
+    return prisma.category.findMany({
       where: { userId, deletedAt: null },
       orderBy: [
-        {
-          isFavorite: 'desc',
-        },
-        {
-          importanceLevel: 'desc',
-        },
-        {
-          name: 'asc',
-        },
+        { isFavorite: 'desc' },
+        { importanceLevel: 'desc' },
+        { name: 'asc' },
       ],
     });
   }
 
   static async findOne(id: string, userId: string): Promise<CategoryEntity> {
-    return await prisma.category.findFirst({
+    return prisma.category.findFirst({
       where: { id, userId, deletedAt: null },
     });
   }
 
-  static async remove(id: string, userId: string): Promise<void> {
-    await prisma.category.update({
+  static remove(id: string, userId: string): Promise<void> {
+    return prisma.category.update({
       where: { id, userId, deletedAt: null },
-      data: {
-        deletedAt: DateTime.now().toJSDate(),
-      },
-    });
+      data: { deletedAt: DateTime.now().toJSDate() },
+    }) as unknown as Promise<void>;
   }
 }

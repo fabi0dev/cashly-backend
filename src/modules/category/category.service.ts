@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CategoryRepository } from './category.repository';
 import { CreateCategoryDTO } from './dto/create-category.dto';
 import { UpdateCategoryDTO } from './dto/update-category.dto';
@@ -8,10 +8,10 @@ import { CategoryMapper } from './mapper/category.mapper';
 @Injectable()
 export class CategoryService {
   async create(userId: string, data: CreateCategoryDTO): Promise<CategoryDTO> {
-    const existingCategories = await CategoryRepository.findAll(userId);
+    const categories = await CategoryRepository.findAll(userId);
 
-    if (existingCategories.length >= 20) {
-      throw new Error('limit of 20 categories reached.');
+    if (categories.length >= 20) {
+      throw new BadRequestException('limit of 20 categories reached.');
     }
 
     const category = await CategoryRepository.create(userId, data);
@@ -32,7 +32,7 @@ export class CategoryService {
     return categories.map(CategoryMapper.toDTO);
   }
 
-  async findOne(id: string, userId: string): Promise<CategoryDTO> {
+  async findOne(id: string, userId: string): Promise<CategoryDTO | null> {
     const category = await CategoryRepository.findOne(id, userId);
     return category ? CategoryMapper.toDTO(category) : null;
   }

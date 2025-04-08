@@ -14,32 +14,25 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) {
-      throw new UnauthorizedException();
-    }
+    if (!token) throw new UnauthorizedException();
 
     const payload = await this.validateToken(token);
-    const userEntity = await UserRepository.getUserById(payload.userId);
 
-    if (!userEntity) {
-      throw new UnauthorizedException();
-    }
+    const user = await UserRepository.getUserById(payload.userId);
+    if (!user) throw new UnauthorizedException('User not found');
 
     request['user'] = payload;
-
     return true;
   }
 
   private async validateToken(token: string) {
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      return await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-
-      return payload;
     } catch {
       throw new NetworkAuthenticationRequiredException();
     }

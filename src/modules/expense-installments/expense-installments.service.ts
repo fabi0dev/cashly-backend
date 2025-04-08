@@ -11,14 +11,11 @@ export class ExpenseInstallmentsService {
     userId: string,
     filters: FiltersExpenseInstallmentsDTO,
   ): Promise<PaginationDTO<ExpenseInstallmentDTO>> {
-    const paginatedExpenses = await ExpenseInstallmentRepository.findAll(
-      userId,
-      filters,
-    );
+    const result = await ExpenseInstallmentRepository.findAll(userId, filters);
 
     return {
-      ...paginatedExpenses,
-      data: paginatedExpenses.data.map(ExpenseInstallmentsMapper.toDTO),
+      ...result,
+      data: result.data.map(ExpenseInstallmentsMapper.toDTO),
     };
   }
 }

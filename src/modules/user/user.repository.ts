@@ -7,7 +7,7 @@ import { UpdateProfileUserDTO } from './dto/update-profile-user.dto';
 
 export class UserRepository {
   static async auth({ email, password }: AuthUserDTO): Promise<UserEntity> {
-    return await prisma.users.findFirst({
+    return prisma.users.findFirst({
       where: {
         email,
         password,
@@ -17,28 +17,20 @@ export class UserRepository {
   }
 
   static async getUserById(id: string): Promise<UserEntity> {
-    return await prisma.users.findFirst({
+    return prisma.users.findFirst({
       where: { id, deletedAt: null },
     });
   }
 
   static async getUserByEmail(email: string): Promise<UserEntity> {
-    return await prisma.users.findFirst({
+    return prisma.users.findFirst({
       where: { email, deletedAt: null },
     });
   }
 
-  static async createUser({
-    name,
-    email,
-    password,
-  }: CreateUserDTO): Promise<UserEntity> {
-    return await prisma.users.create({
-      data: {
-        name,
-        email,
-        password,
-      },
+  static async createUser(data: CreateUserDTO): Promise<UserEntity> {
+    return prisma.users.create({
+      data,
     });
   }
 
@@ -46,7 +38,7 @@ export class UserRepository {
     id: string,
     data: Partial<UserEntity>,
   ): Promise<UserEntity> {
-    return await prisma.users.update({
+    return prisma.users.update({
       where: { id },
       data,
     });
@@ -56,7 +48,7 @@ export class UserRepository {
     id: string,
     data: Partial<UpdateProfileUserDTO>,
   ): Promise<UserEntity> {
-    return await prisma.users.update({
+    return prisma.users.update({
       where: { id },
       data,
     });
@@ -66,7 +58,7 @@ export class UserRepository {
     userId: string,
     { password }: UpdatePasswordDTO,
   ): Promise<UserEntity> {
-    return await prisma.users.update({
+    return prisma.users.update({
       where: { id: userId },
       data: {
         password,

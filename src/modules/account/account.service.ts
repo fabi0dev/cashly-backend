@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AccountRepository } from './account.repository';
 import { CreateAccountDTO } from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account.dto';
@@ -42,15 +42,19 @@ export class AccountService {
   }
 
   static async findOne(userId: string, id: string): Promise<AccountDTO> {
-    return await AccountRepository.findOne(userId, id);
+    const account = await AccountRepository.findOne(userId, id);
+    if (!account) throw new NotFoundException('Account not found');
+
+    return AccountMapper.toDTO(account);
   }
 
   static async update(
     userId: string,
     id: string,
-    updateAccountDto: UpdateAccountDTO,
+    data: UpdateAccountDTO,
   ): Promise<AccountDTO> {
-    return AccountRepository.update(userId, id, updateAccountDto);
+    const account = await AccountRepository.update(userId, id, data);
+    return AccountMapper.toDTO(account);
   }
 
   static async delete(userId: string, id: string): Promise<void> {

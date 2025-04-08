@@ -22,7 +22,7 @@ export class ExpenseService {
     return ExpenseMapper.toDTO(expenseEntity);
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<ExpenseDTO> {
     const expenseEntity = await ExpenseRepository.findOne(id);
     if (!expenseEntity) {
       throw new NotFoundException('Expense not found');

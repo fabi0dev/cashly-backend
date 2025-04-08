@@ -10,7 +10,7 @@ export class ExpenseInstallmentRepository {
     expenseId: string,
     data: CreateExpenseInstallmentDTO,
   ): Promise<ExpenseInstallmentEntity> {
-    const expenseInstallments = await prisma.expenseInstallments.create({
+    const result = await prisma.expenseInstallments.create({
       data: {
         ...data,
         expenseId,
@@ -18,31 +18,31 @@ export class ExpenseInstallmentRepository {
       include: this.commonInclude,
     });
 
-    return this.mapEntityWithExpense(expenseInstallments);
+    return this.mapEntityWithExpense(result);
   }
 
   static async findByExpenseId(
     expenseId: string,
   ): Promise<ExpenseInstallmentEntity[]> {
-    const expenseInstallments = await prisma.expenseInstallments.findMany({
+    const result = await prisma.expenseInstallments.findMany({
       where: { expenseId, deletedAt: null },
       include: this.commonInclude,
       orderBy: { installmentNumber: 'asc' },
     });
 
-    return expenseInstallments.map(this.mapEntityWithExpense);
+    return result.map(this.mapEntityWithExpense);
   }
 
   static async findNoPaidByExpenseId(
     expenseId: string,
   ): Promise<ExpenseInstallmentEntity[]> {
-    const expenseInstallments = await prisma.expenseInstallments.findMany({
+    const result = await prisma.expenseInstallments.findMany({
       where: { expenseId, deletedAt: null, isPaid: false },
       include: this.commonInclude,
       orderBy: { installmentNumber: 'asc' },
     });
 
-    return expenseInstallments.map(this.mapEntityWithExpense);
+    return result.map(this.mapEntityWithExpense);
   }
 
   static async findOne(id: string): Promise<ExpenseInstallmentEntity | null> {
@@ -154,7 +154,7 @@ export class ExpenseInstallmentRepository {
     expenseId: string,
     data: Partial<CreateExpenseInstallmentDTO>,
   ) {
-    return await prisma.expenseInstallments.updateMany({
+    return prisma.expenseInstallments.updateMany({
       where: { expenseId },
       data,
     });

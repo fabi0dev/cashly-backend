@@ -76,7 +76,7 @@ export class ExpenseRepository {
   }
 
   static async findOne(id: string): Promise<ExpenseEntity | null> {
-    return await prisma.expenses.findUnique({
+    return prisma.expenses.findUnique({
       where: { id, deletedAt: null },
       include: {
         category: {

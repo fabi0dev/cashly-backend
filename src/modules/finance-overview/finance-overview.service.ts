@@ -60,7 +60,7 @@ export class FinanceOverviewService {
 
   async getExpenseDistribution(
     userId: string,
-    days?: number,
+    days: number = 30,
   ): Promise<ExpenseDistributionDTO[]> {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - (days || 30));
@@ -92,7 +92,7 @@ export class FinanceOverviewService {
 
     const expenseDistribution = expenses.reduce(
       (acc, expense) => {
-        const category = expense.category.name || 'Uncategorized';
+        const category = expense.category?.name || 'Sem categoria';
         acc[category] = (acc[category] || 0) + expense.amount;
         return acc;
       },

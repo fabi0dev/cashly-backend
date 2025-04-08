@@ -24,8 +24,8 @@ export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
   @Post()
-  create(@JwtDecode() tokenData: JwtPayload, @Body() body: CreateExpenseDTO) {
-    return this.expenseService.create(tokenData.userId, body);
+  create(@JwtDecode() { userId }: JwtPayload, @Body() body: CreateExpenseDTO) {
+    return this.expenseService.create(userId, body);
   }
 
   @Get(':id')
@@ -48,11 +48,11 @@ export class ExpenseController {
 
   @Get()
   findAll(
-    @JwtDecode() tokenData: JwtPayload,
+    @JwtDecode() { userId }: JwtPayload,
     @Query() pagination: ProhibitedPaginationDTO,
   ) {
     return this.expenseService.getAll(
-      tokenData.userId,
+      userId,
       pagination.page,
       pagination.limit,
     );
@@ -60,11 +60,11 @@ export class ExpenseController {
 
   @Get('-/installments')
   findAllInstallments(
-    @JwtDecode() tokenData: JwtPayload,
+    @JwtDecode() { userId }: JwtPayload,
     @Query() pagination: ProhibitedPaginationDTO,
   ) {
     return this.expenseService.getAll(
-      tokenData.userId,
+      userId,
       pagination.page,
       pagination.limit,
     );

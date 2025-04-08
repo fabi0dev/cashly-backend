@@ -10,8 +10,6 @@ import { AccountRepository } from '../account/account.repository';
 import { DateTime } from 'luxon';
 
 export class ExpenseRepository {
-  constructor() {}
-
   static async create(
     userId: string,
     data: CreateExpenseDTO,
@@ -67,9 +65,11 @@ export class ExpenseRepository {
         }
       }
 
-      await prisma.expenseInstallments.createMany({
-        data: installmentData,
-      });
+      if (installmentData.length > 0) {
+        await prisma.expenseInstallments.createMany({
+          data: installmentData,
+        });
+      }
     }
 
     return expense;
@@ -97,6 +97,7 @@ export class ExpenseRepository {
       where: { id },
       data: {
         description: data.description,
+        isPaid: data.isPaid,
       },
       include: {
         category: {
@@ -137,7 +138,7 @@ export class ExpenseRepository {
         },
       }),
 
-      prisma.expenses.count({ where: { userId } }),
+      prisma.expenses.count({ where: { userId, deletedAt: null } }),
     ]);
 
     const totalPages = Math.ceil(totalItems / limit);

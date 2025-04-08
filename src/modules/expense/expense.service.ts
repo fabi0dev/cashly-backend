@@ -107,7 +107,6 @@ export class ExpenseService {
 
     const expense = await ExpenseRepository.findOne(installment.expenseId);
 
-    //create transaction
     await TransactionRepository.create(userId, {
       accountId: data.accountId,
       amount: expense.amount,
@@ -118,13 +117,11 @@ export class ExpenseService {
       expenseId: expense.id,
     });
 
-    //update installment
     await ExpenseInstallmentRepository.update(installment.id, {
       isPaid: true,
       paymentDate: data.paymentDate,
     });
 
-    //check if all installments are paid
     const installments =
       await ExpenseInstallmentRepository.findNoPaidByExpenseId(expense.id);
 

@@ -6,8 +6,6 @@ import { UpdatePasswordDTO } from './dto/update-password';
 import { UpdateProfileUserDTO } from './dto/update-profile-user.dto';
 
 export class UserRepository {
-  constructor() {}
-
   static async auth({ email, password }: AuthUserDTO): Promise<UserEntity> {
     const entity = await prisma.users.findFirst({
       where: {

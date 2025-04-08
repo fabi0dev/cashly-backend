@@ -8,8 +8,6 @@ import { formatDateUTCToISO } from 'src/utils/date';
 
 export class ExpenseMapper {
   static toDTO(entity: ExpenseEntity): ExpenseDTO {
-    const category = entity.category;
-
     return {
       id: entity.id,
       userId: entity.userId,
@@ -28,7 +26,7 @@ export class ExpenseMapper {
 
       installmentsCount: entity.installmentsCount,
 
-      category,
+      category: entity.category,
     };
   }
 
